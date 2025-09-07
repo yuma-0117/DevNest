@@ -6,10 +6,7 @@ import { Noto_Sans_JP } from "next/font/google";
 import { Header } from "./components/layout/header";
 import { ThemeProvider } from "./components/theme/theme-provider";
 
-const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin"],
-  variable: "--font-noto-sans-jp",
-});
+const notoSansJP = Noto_Sans_JP();
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body className={`${notoSansJP.variable} antialiased`}>
+      <body className={`${notoSansJP.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
