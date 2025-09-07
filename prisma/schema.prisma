@@ -80,17 +80,15 @@ model Thread {
   authorId       String   @map("author_id")
   isPinned       Boolean  @default(false) @map("is_pinned")
   isLocked       Boolean  @default(false) @map("is_locked")
-  hasImages      Boolean  @default(false) @map("has_images")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   lastActivityAt DateTime @default(now()) @map("last_activity_at")
   replyCount     Int      @default(0) @map("reply_count")
   viewCount      Int      @default(0) @map("view_count")
 
-  author User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   posts  Post[]
   tags   ThreadTag[]
-  image  ThreadImage?
 
   @@map("threads")
 }
@@ -101,16 +99,14 @@ model Post {
   threadId  String   @map("thread_id")
   authorId  String   @map("author_id")
   parentId  String?  @map("parent_id")
-  hasImages Boolean  @default(false) @map("has_images")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   isEdited  Boolean  @default(false) @map("is_edited")
 
-  thread  Thread     @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  author  User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent  Post?      @relation("PostReplies", fields: [parentId], references: [id])
-  replies Post[]     @relation("PostReplies")
-  image   PostImage?
+  thread  Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author  User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  Post?  @relation("PostReplies", fields: [parentId], references: [id])
+  replies Post[] @relation("PostReplies")
 
   @@map("posts")
 }
@@ -139,40 +135,6 @@ model ThreadTag {
 
   @@id([threadId, tagId])
   @@map("thread_tags")
-}
-
-model ThreadImage {
-  id        String   @id @default(uuid())
-  threadId  String   @unique @map("thread_id")
-  fileName  String   @map("file_name") @db.VarChar(255)
-  filePath  String   @map("file_path") @db.VarChar(500)
-  fileSize  Int      @map("file_size")
-  mimeType  String   @map("mime_type") @db.VarChar(50)
-  altText   String?  @map("alt_text") @db.Text
-  width     Int?
-  height    Int?
-  createdAt DateTime @default(now()) @map("created_at")
-
-  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-
-  @@map("thread_images")
-}
-
-model PostImage {
-  id        String   @id @default(uuid())
-  postId    String   @unique @map("post_id")
-  fileName  String   @map("file_name") @db.VarChar(255)
-  filePath  String   @map("file_path") @db.VarChar(500)
-  fileSize  Int      @map("file_size")
-  mimeType  String   @map("mime_type") @db.VarChar(50)
-  altText   String?  @map("alt_text") @db.Text
-  width     Int?
-  height    Int?
-  createdAt DateTime @default(now()) @map("created_at")
-
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@map("post_images")
 }
 
 // Enums
