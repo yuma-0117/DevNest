@@ -1,4 +1,5 @@
 import { signOut } from "@/lib/auth";
+import { LogoutIcon } from "../icons/logout-icon";
 
 export const SignOutForm = () => {
   return (
@@ -8,7 +9,10 @@ export const SignOutForm = () => {
         await signOut();
       }}
     >
-      <button type="submit">Sign out</button>
+      <button type="submit" className="flex items-center">
+        <LogoutIcon />
+        <span>Sign out</span>
+      </button>
     </form>
   );
 };
