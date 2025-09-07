@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { SignInForm } from "@/app/components/auth/sign-in-form";
 import { SignOutForm } from "@/app/components/auth/sign-out-form";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { auth } from "@/lib/auth";
+
 import { ThemeToggle } from "../theme/theme-toggle";
 
 export const Header = async () => {
@@ -17,7 +21,13 @@ export const Header = async () => {
 
   return (
     <div className="flex justify-between items-center p-4 bg-gray-400 dark:bg-gray-600">
-      <span className="flex-3 text-3xl font-bold">DevNest</span>
+      <div className="flex-3">
+        <Button variant="ghost">
+          <Link href="/" className="text-3xl font-bold">
+            DevNest
+          </Link>
+        </Button>
+      </div>
       <div className="flex flex-2 items-center justify-between">
         <ThemeToggle />
         {!session?.user && <SignInForm />}
