@@ -36,15 +36,17 @@ export const ThreadForm = ({ userId }: { userId: string }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const newThread = await createThreadAction(
+    const newThreadId = await createThreadAction(
       values.title,
       values.content,
       userId
     );
-    console.log(newThread);
+    console.log(newThreadId);
 
-    router.push(`/${newThread.id}`);
-    form.reset();
+    if (newThreadId) {
+      router.push(`/${newThreadId}`);
+      form.reset();
+    }
   };
 
   return (

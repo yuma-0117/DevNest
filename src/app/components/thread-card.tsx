@@ -1,10 +1,14 @@
-import { prisma } from "@/lib/db/prisma";
-import { Thread } from "@prisma/client";
 import Link from "next/link";
 
-export const ThreadCard = async ({ thread }: { thread: Thread }) => {
-  const user = await prisma.user.findFirst({ where: { id: thread.authorId } });
+import { Thread, User } from "@prisma/client";
 
+export const ThreadCard = ({
+  thread,
+  user,
+}: {
+  thread: Thread;
+  user: User | undefined;
+}) => {
   return (
     <Link
       href={thread.id}
@@ -12,8 +16,12 @@ export const ThreadCard = async ({ thread }: { thread: Thread }) => {
     >
       <span className="text-2xl font-bold">{thread.title}</span>
       <div className="flex items-center justify-between pr-4 pl-4">
-        <span>{user?.name}</span>
-        <span>{`${thread.createdAt.getFullYear()}/${thread.createdAt.getMonth()}/${thread.createdAt.getDate()}`}</span>
+        <span className="font-semibold text-blue-600 dark:text-blue-400">
+          {user?.name ? user.name : "Unknown User"}
+        </span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {new Date(thread.createdAt).toLocaleDateString()}
+        </span>
       </div>
     </Link>
   );
