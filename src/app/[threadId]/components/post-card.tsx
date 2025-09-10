@@ -22,7 +22,7 @@ export const PostCard = async ({
   }
 
   return (
-    <div className="bg-gray-300 dark:bg-gray-700 rounded shadow-md p-2">
+    <div className="bg-gray-300 dark:bg-gray-700 rounded shadow-md p-2 hover:bg-gray-200 hover:dark:bg-gray-600 transition-all duration-300">
       <div className="flex justify-between">
         <div>
           <span>{index}</span>
