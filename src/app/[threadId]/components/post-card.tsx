@@ -31,7 +31,7 @@ export const PostCard = async ({
             <Link href={`/profile/${user?.email}`}>{user?.name}</Link>
           </Button>
         </div>
-        <span>{`${post.createdAt.getFullYear()}/${post.createdAt.getMonth()}/${post.createdAt.getDate()} ${post.createdAt.getHours()}:${post.createdAt.getMinutes()}`}</span>
+        <span>{post.createdAt.toLocaleDateString()}</span>
       </div>
       <div className="text-2xl font-bold">{post.content}</div>
     </div>

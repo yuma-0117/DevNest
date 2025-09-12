@@ -2,18 +2,17 @@
 
 import { prisma } from "@/lib/db/prisma";
 
-export const createThreadAction = async (
-  title: string,
+export const addPostAction = async (
   content: string,
+  threadId: string,
   authorId: string
 ) => {
-  const newThread = await prisma.thread.create({
+  const newPost = await prisma.post.create({
     data: {
-      title,
       content,
       authorId,
+      threadId,
     },
   });
-
-  return newThread;
+  return newPost;
 };
