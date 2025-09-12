@@ -1,20 +1,19 @@
 import Link from "next/link";
 
-import { prisma } from "@/lib/db/prisma";
-import { Post } from "@prisma/client";
 import { Button } from "@/components/ui/button";
+import { Post, User } from "@prisma/client";
 
-export const PostCard = async ({
+export const PostCard = ({
   posts,
   post,
   index,
+  user,
 }: {
   posts: Post[];
   post: Post;
   index: number;
+  user: User | undefined;
 }) => {
-  const user = await prisma.user.findFirst({ where: { id: post.authorId } });
-
   let parentPostIndex;
   if (post.parentId) {
     const parentId = post.parentId;

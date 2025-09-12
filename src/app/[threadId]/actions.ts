@@ -16,3 +16,11 @@ export const addPostAction = async (
   });
   return newPost;
 };
+
+export const fetchAllPostsAction = async (threadId: string) => {
+  const posts = await prisma.post.findMany({
+    where: { threadId },
+    orderBy: { createdAt: "asc" },
+  });
+  return posts;
+};

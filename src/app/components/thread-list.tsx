@@ -34,9 +34,7 @@ export const ThreadList = () => {
         "postgres_changes",
         { event: "*", schema: "public", table: "threads" },
         async () => {
-          const threads = await fetchAllThreadsAction();
-          if (!threads) return;
-          setThreads(threads);
+          fetchThreads();
         }
       )
       .subscribe();
