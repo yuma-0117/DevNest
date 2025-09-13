@@ -1,6 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { ThreadList } from "./components/thread-list";
 import Link from "next/link";
+import { Suspense } from "react";
+
+import { Button } from "@/components/ui/button";
+
+import { ThreadList } from "./components/thread-list";
 
 export default function Home() {
   return (
@@ -10,7 +13,9 @@ export default function Home() {
           <Link href="/create-thread">Create Thread</Link>
         </Button>
       </div>
-      <ThreadList />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ThreadList />
+      </Suspense>
     </main>
   );
 }

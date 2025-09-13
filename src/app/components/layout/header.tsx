@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { SignInForm } from "@/app/components/auth/sign-in-form";
 import { SignOutForm } from "@/app/components/auth/sign-out-form";
@@ -34,12 +35,14 @@ export const Header = async () => {
         {session?.user?.image && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar>
-                <AvatarImage
-                  src={session.user.image}
-                  alt={session.user.name ?? ""}
-                />
-              </Avatar>
+              <Suspense fallback={<div>Loading...</div>}>
+                <Avatar>
+                  <AvatarImage
+                    src={session.user.image}
+                    alt={session.user.name ?? ""}
+                  />
+                </Avatar>
+              </Suspense>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>{session.user.name}</DropdownMenuLabel>
