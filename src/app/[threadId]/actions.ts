@@ -24,3 +24,17 @@ export const fetchAllPostsAction = async (threadId: string) => {
   });
   return posts;
 };
+
+export const updatePostAction = async (id: string, content: string) => {
+  const updatedPost = await prisma.post.update({
+    where: { id },
+    data: { content },
+  });
+  return updatedPost;
+};
+
+export const deletePostAction = async (id: string) => {
+  await prisma.post.delete({
+    where: { id },
+  });
+};

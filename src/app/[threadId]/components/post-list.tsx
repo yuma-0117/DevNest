@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, useEffect, useState } from "react";
 
 import { fetchAllUsersAction } from "@/app/actions";
 import { supabase } from "@/lib/db/supabase";
@@ -9,8 +9,19 @@ import { Post, User } from "@prisma/client";
 import { fetchAllPostsAction } from "../actions";
 import { PostCard } from "./post-card";
 
-export const PostList = ({ threadId }: { threadId: string }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+export const PostList = ({
+  threadId,
+  sessionUserId,
+  posts,
+  setPosts,
+  setEditingPost,
+}: {
+  threadId: string;
+  sessionUserId: string | undefined;
+  posts: Post[];
+  setPosts: Dispatch<React.SetStateAction<Post[]>>;
+  setEditingPost: Dispatch<React.SetStateAction<number | false>>;
+}) => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -43,7 +54,7 @@ export const PostList = ({ threadId }: { threadId: string }) => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [threadId]);
+  }, [threadId, setPosts]);
 
   return (
     <div className="space-y-2">
@@ -54,6 +65,8 @@ export const PostList = ({ threadId }: { threadId: string }) => {
           post={post}
           index={index + 1}
           user={users.find((user) => user.id === post.authorId)}
+          sessionUserId={sessionUserId}
+          setEditingPost={setEditingPost}
         />
       ))}
     </div>

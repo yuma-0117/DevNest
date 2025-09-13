@@ -1,9 +1,8 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 
-import { PostForm } from "./components/post-form";
-import { PostList } from "./components/post-list";
 import { ThreadOverview } from "./components/thread-overview";
+import { PostField } from "./components/post-field";
 
 export default async function ThreadPage({
   params,
@@ -28,10 +27,7 @@ export default async function ThreadPage({
           sessionUserId={session?.user?.id}
         />
       )}
-      <PostList threadId={threadId} />
-      <div className="fixed bottom-0 w-screen p-2">
-        <PostForm threadId={threadId} userId={session?.user?.id || ""} />
-      </div>
+      <PostField threadId={threadId} sessionUserId={session?.user?.id} />
     </div>
   );
 }
