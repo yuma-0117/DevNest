@@ -27,7 +27,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <header>
+          <header className="sticky top-0 z-50">
             <Header />
           </header>
           {children}

@@ -51,12 +51,11 @@ export const ThreadList = () => {
   return threads.length === 0 ? null : (
     <div className="space-y-3 pt-4">
       {threads.map((thread) => (
-        <div key={thread.id}>
-          <ThreadCard
-            thread={thread}
-            user={users.find((user) => user.id === thread.authorId)}
-          />
-        </div>
+        <ThreadCard
+          key={thread.id}
+          thread={thread}
+          user={users.find((user) => user.id === thread.authorId)}
+        />
       ))}
     </div>
   );

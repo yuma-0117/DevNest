@@ -6,9 +6,11 @@ import { Thread, User } from "@prisma/client";
 export const ThreadOverview = ({
   thread,
   user,
+  sessionUserId,
 }: {
   thread: Thread;
   user: User;
+  sessionUserId?: string;
 }) => {
   return (
     <div className="flex flex-col bg-gray-200 dark:bg-gray-800 p-2 space-y-3 rounded shadow-md">
@@ -19,10 +21,18 @@ export const ThreadOverview = ({
         </span>
       </div>
       <div className="p-2">{thread?.content}</div>
-      <div>
+      <div className="flex justify-between items-center">
         <Button variant="ghost">
           <Link href={`/profile/${user?.id}`}>{user?.name}</Link>
         </Button>
+        {sessionUserId === thread?.authorId && (
+          <Button
+            variant="ghost"
+            className="bg-green-500/20 hover:bg-green-500/30"
+          >
+            <Link href={`/${thread?.id}/edit`}>Edit</Link>
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -20,8 +20,14 @@ export default async function ThreadPage({
   const user = await prisma.user.findFirst({ where: { id: thread?.authorId } });
 
   return (
-    <div className="p-2 space-y-3 w-screen h-full absolute">
-      {thread && user && <ThreadOverview thread={thread} user={user} />}
+    <div className="p-2 space-y-3 w-full h-full absolute">
+      {thread && user && (
+        <ThreadOverview
+          thread={thread}
+          user={user}
+          sessionUserId={session?.user?.id}
+        />
+      )}
       <PostList threadId={threadId} />
       <div className="fixed bottom-0 w-screen p-2">
         <PostForm threadId={threadId} userId={session?.user?.id || ""} />
