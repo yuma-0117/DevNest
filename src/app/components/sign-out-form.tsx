@@ -1,15 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth";
+import { signOut } from "next-auth/react";
 
 export default function SignOut() {
-  return (
-    <form
-      action={async () => {
-        "use server";
-        await signOut();
-      }}
-    >
-      <Button type="submit">Sign out</Button>
-    </form>
-  );
+  return <button onClick={() => signOut()}>Sign out</button>;
 }
