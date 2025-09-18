@@ -21,6 +21,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Thread    Thread[]
+  Post      Post[]
 }
 
 model Account {
@@ -76,4 +78,42 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Thread {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  createAt    DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  posts  Post[]
+  tags   Tag[]
+}
+
+model Post {
+  id       String   @id @default(uuid())
+  content  String
+  createAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  threadId String
+  thread   Thread @relation(fields: [threadId], references: [id])
+
+  parentId String?
+  parent   Post?   @relation("PostReplies", fields: [parentId], references: [id])
+  replies  Post[]  @relation("PostReplies")
+
+  tags Tag[]
+}
+
+model Tag {
+  id   String @id @default(uuid())
+  name String
+
+  posts   Post[]
+  threads Thread[]
 }
