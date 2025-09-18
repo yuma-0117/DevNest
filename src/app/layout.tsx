@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
 import "./globals.css";
+
+import { SessionProvider } from "next-auth/react";
+import { Roboto } from "next/font/google";
+import { ThemeProvider } from "./components/theme/theme-provider";
+
+import { Header } from "./components/layout/header";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -18,8 +23,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${roboto.variable} antialiased`}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${roboto.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>
+            <Header />
+          </SessionProvider>
+        </ThemeProvider>
+        <main>{children}</main>
+      </body>
     </html>
   );
 }
