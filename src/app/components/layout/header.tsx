@@ -16,7 +16,8 @@ import {
 
 import SignIn from "../auth/sign-in-form";
 import SignOut from "../auth/sign-out-form";
-import { ThemeToggle } from "./theme-trigger";
+import { ThemeToggle } from "../theme/theme-trigger";
+import Link from "next/link";
 
 export const Header = () => {
   const { data: session } = useSession();
@@ -25,9 +26,12 @@ export const Header = () => {
     <div className="flex items-center justify-between bg-gray-300 dark:bg-gray-700 p-2">
       <div className="flex items-center">
         <Image src="/logo.png" alt="DevNest" width={60} height={60} />
-        <span className="text-2xl font-bold text-gray-800 dark:text-gray-200 ml-2">
+        <Link
+          href="/"
+          className="text-2xl font-bold text-gray-800 dark:text-gray-200 ml-2"
+        >
           DevNest
-        </span>
+        </Link>
       </div>
       <div>
         <ThemeToggle />

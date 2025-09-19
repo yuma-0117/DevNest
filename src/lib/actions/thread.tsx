@@ -43,6 +43,7 @@ export const fetchThreadByIdAction = async (id?: string) => {
       user: {
         select: {
           name: true,
+          image: true,
         },
       },
 
@@ -54,6 +55,7 @@ export const fetchThreadByIdAction = async (id?: string) => {
           user: {
             select: {
               name: true,
+              image: true,
             },
           },
 
