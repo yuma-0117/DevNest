@@ -19,10 +19,11 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Thread    Thread[]
-  Post      Post[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  threads Thread[]
+  posts   Post[]
 }
 
 model Account {
@@ -84,9 +85,9 @@ model Thread {
   id          String   @id @default(uuid())
   title       String
   description String
-  createAt    DateTime @default(now())
+  createAt    DateTime @default(now()) @map("created_at")
 
-  userId String
+  userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
   posts  Post[]
   tags   Tag[]
@@ -97,13 +98,13 @@ model Post {
   content  String
   createAt DateTime @default(now())
 
-  userId String
+  userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
 
-  threadId String
+  threadId String @map("thread_id")
   thread   Thread @relation(fields: [threadId], references: [id])
 
-  parentId String?
+  parentId String? @map("parent_id")
   parent   Post?   @relation("PostReplies", fields: [parentId], references: [id])
   replies  Post[]  @relation("PostReplies")
 
@@ -112,7 +113,7 @@ model Post {
 
 model Tag {
   id   String @id @default(uuid())
-  name String
+  name String @unique
 
   posts   Post[]
   threads Thread[]
