@@ -1,3 +1,5 @@
+"use server";
+
 import { prisma } from "../db/prisma";
 
 export const fetchAllThreadsAction = async () => {
@@ -12,6 +14,7 @@ export const fetchAllThreadsAction = async () => {
       user: {
         select: {
           name: true,
+          image: true,
         },
       },
 

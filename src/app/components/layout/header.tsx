@@ -2,8 +2,9 @@
 
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { Suspense } from "react";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import SignIn from "../sign-in-form";
-import SignOut from "../sign-out-form";
+import SignIn from "../auth/sign-in-form";
+import SignOut from "../auth/sign-out-form";
 import { ThemeToggle } from "./theme-trigger";
-import { Suspense } from "react";
 
 export const Header = () => {
   const { data: session } = useSession();
@@ -44,6 +44,9 @@ export const Header = () => {
                     width={30}
                     height={30}
                   />
+                  <AvatarFallback>
+                    {session.user.name?.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
