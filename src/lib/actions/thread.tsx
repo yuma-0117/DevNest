@@ -81,17 +81,21 @@ export const fetchThreadByIdAction = async (id?: string) => {
   return thread;
 };
 
+import { auth } from "@/lib/auth";
+
 export const createThreadAction = async (
   title: string,
   description: string,
-  userId: string,
   tags: string[]
 ) => {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+
   const thread = await prisma.thread.create({
     data: {
       title,
       description,
-      userId,
+      userId: session.user.id,
       tags: {
         connectOrCreate: tags.map((tag) => ({
           where: { name: tag },
