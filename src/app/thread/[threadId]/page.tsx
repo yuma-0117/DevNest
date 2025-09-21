@@ -1,12 +1,17 @@
 import { fetchThreadByIdAction } from "@/lib/actions/thread";
-import { ThreadHeader } from "./components/thread-header";
-import { PostList } from "./components/post-list";
 import { ThreadPageData } from "@/types";
 
-const ThreadPage = async ({ params }: { params: { threadId: string } }) => {
-  const thread: ThreadPageData | null = await fetchThreadByIdAction(
-    params.threadId
-  );
+import { PostList } from "./components/post-list";
+import { ThreadHeader } from "./components/thread-header";
+
+const ThreadPage = async ({
+  params,
+}: {
+  params: Promise<{ threadId: string }>;
+}) => {
+  const { threadId } = await params;
+
+  const thread: ThreadPageData | null = await fetchThreadByIdAction(threadId);
 
   if (!thread) {
     return <div>Thread not found</div>;
