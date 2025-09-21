@@ -26,7 +26,7 @@ const ThreadPage = async ({
   return (
     <div className="container mx-auto py-8">
       <ThreadHeader thread={thread} user={session?.user} />
-      <PostList posts={thread.posts} />
+      <PostList posts={thread.posts} user={session?.user} />
       <Link
         href={`/thread/${threadId}/post/create`}
         className="fixed bottom-3 right-3"

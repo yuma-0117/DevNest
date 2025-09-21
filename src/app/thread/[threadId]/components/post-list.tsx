@@ -1,9 +1,16 @@
 import { ThreadPageData } from "@/types";
 import { PostCard } from "./post-card";
+import { Session } from "next-auth";
 
 type Posts = ThreadPageData["posts"];
 
-export const PostList = ({ posts }: { posts: Posts }) => {
+export const PostList = ({
+  posts,
+  user,
+}: {
+  posts: Posts;
+  user: Session["user"] | undefined;
+}) => {
   return (
     <main>
       <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-slate-50">
@@ -11,7 +18,7 @@ export const PostList = ({ posts }: { posts: Posts }) => {
       </h2>
       <div className="space-y-6">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} user={user} />
         ))}
       </div>
     </main>

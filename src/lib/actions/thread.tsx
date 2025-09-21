@@ -53,8 +53,10 @@ export const fetchThreadByIdAction = async (id?: string) => {
           id: true,
           content: true,
           createAt: true,
+          threadId: true,
           user: {
             select: {
+              id: true,
               name: true,
               image: true,
             },

@@ -1,13 +1,14 @@
 'use client';
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { z } from "zod";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { z } from 'zod';
+import { Post } from '@prisma/client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,47 +16,51 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { createPostAction } from "@/lib/actions/post";
-import { zodResolver } from "@hookform/resolvers/zod";
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { updatePostAction } from '@/lib/actions/post';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { formSchema } from "./schema";
-import { TagsField } from "@/app/thread/create/components/fields/tags-field";
-import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
+import { formSchema } from '@/app/thread/[threadId]/post/create/components/schema';
+import { TagsField } from '@/app/thread/create/components/fields/tags-field';
+import { TagSuggestion } from '@/app/thread/create/components/fields/tag-suggestion';
 
 type Tag = {
   id: string;
   name: string;
 };
 
-export const PostCreateForm = ({
-  threadId,
+export const PostEditForm = ({
+  post,
   allTags,
 }: {
-  threadId: string;
+  post: Post & { tags: Tag[] }; // Include tags in Post type
   allTags: Tag[];
 }) => {
-  const [tab, setTab] = useState<"write" | "preview">("write");
+  const [tab, setTab] = useState<'write' | 'preview'>('write');
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      content: "",
-      tags: "",
+      content: post.content,
+      tags: post.tags.map((tag) => tag.name).join(','), // Populate tags
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const tagsArray = values.tags
-      .split(",")
+      .split(',')
       .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
+      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== '');
 
-    await createPostAction(values.content, threadId, tagsArray);
-    router.push(`/thread/${threadId}`);
-    router.refresh();
+    const updatedPost = await updatePostAction(post.id, values.content, tagsArray); // Pass tags
+    if (updatedPost) {
+      router.push(`/thread/${post.threadId}`);
+      router.refresh();
+    } else {
+      alert('Failed to update post.');
+    }
   };
 
   return (
@@ -65,15 +70,15 @@ export const PostCreateForm = ({
           <div className="flex space-x-2 mb-4">
             <Button
               type="button"
-              variant={tab === "write" ? "secondary" : "ghost"}
-              onClick={() => setTab("write")}
+              variant={tab === 'write' ? 'secondary' : 'ghost'}
+              onClick={() => setTab('write')}
             >
               Write
             </Button>
             <Button
               type="button"
-              variant={tab === "preview" ? "secondary" : "ghost"}
-              onClick={() => setTab("preview")}
+              variant={tab === 'preview' ? 'secondary' : 'ghost'}
+              onClick={() => setTab('preview')}
             >
               Preview
             </Button>
@@ -85,7 +90,7 @@ export const PostCreateForm = ({
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  {tab === "write" ? (
+                  {tab === 'write' ? (
                     <Textarea
                       placeholder="Write your post content here..."
                       {...field}
@@ -94,7 +99,7 @@ export const PostCreateForm = ({
                   ) : (
                     <div className="prose dark:prose-invert min-h-[300px] border rounded-md p-4">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {form.getValues("content")}
+                        {form.getValues('content')}
                       </ReactMarkdown>
                     </div>
                   )}
@@ -105,7 +110,7 @@ export const PostCreateForm = ({
           />
           <TagsField />
           <TagSuggestion allTags={allTags} />
-          <Button type="submit">Create Post</Button>
+          <Button type="submit">Update Post</Button>
         </form>
       </Form>
     </FormProvider>
