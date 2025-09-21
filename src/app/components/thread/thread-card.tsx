@@ -1,4 +1,6 @@
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -40,9 +42,11 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
         <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           {title}
         </h2>
-        <p className="text-gray-600 dark:text-gray-300 mt-2 truncate">
-          {description}
-        </p>
+        <div className="prose dark:prose-invert mt-2 truncate">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {description ?? ""}
+          </ReactMarkdown>
+        </div>
       </CardContent>
       <CardFooter>
         <div className="flex flex-wrap gap-2">
