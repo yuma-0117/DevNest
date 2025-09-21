@@ -36,7 +36,7 @@ export const PostCard = ({ post }: { post: Post }) => {
         </div>
       </CardHeader>
       <CardContent>
-        <article className="text-gray-700 dark:text-gray-300 prose">
+        <article className="text-gray-700 dark:text-gray-300 prose dark:prose-invert">
           <Markdown remarkPlugins={[remarkGfm]}>{post.content}</Markdown>
         </article>
       </CardContent>

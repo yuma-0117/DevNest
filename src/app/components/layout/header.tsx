@@ -23,9 +23,9 @@ export const Header = () => {
   const { data: session } = useSession();
 
   return (
-    <div className="flex items-center justify-between bg-gray-300 dark:bg-gray-700 p-2">
+    <div className="flex items-center justify-between bg-gray-300 dark:bg-gray-700 p-2 sticky top-0 z-10">
       <div className="flex items-center">
-        <Image src="/logo.png" alt="DevNest" width={60} height={60} />
+        <Image src="/logo.png" alt="DevNest" width={60} height={60} priority />
         <Link
           href="/"
           className="text-2xl font-bold text-gray-800 dark:text-gray-200 ml-2"
