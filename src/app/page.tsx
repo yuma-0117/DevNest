@@ -13,7 +13,7 @@ export default function Home() {
       </div>
       <div className="fixed bottom-3 right-3">
         <Link href="/thread/create">
-          <Button>
+          <Button className="rounded-full size-14" asChild>
             <PlusIcon />
           </Button>
         </Link>

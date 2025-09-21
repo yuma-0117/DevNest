@@ -28,7 +28,7 @@ export const Header = () => {
         <Image src="/logo.png" alt="DevNest" width={60} height={60} priority />
         <Link
           href="/"
-          className="text-2xl font-bold text-gray-800 dark:text-gray-200 ml-2"
+          className="text-2xl font-bold text-gray-800 dark:text-gray-200 ml-2 hover:bg-gray-400 dark:hover:bg-gray-800 rounded-md p-2 transition-all duration-200"
         >
           DevNest
         </Link>

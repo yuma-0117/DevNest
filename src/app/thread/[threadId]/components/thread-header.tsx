@@ -1,19 +1,46 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ThreadPageData } from "@/types";
+import { Session } from "next-auth";
+import Link from "next/link";
+import { EditIcon } from "./icons/edit-icon";
+import { ThreadDeleteButton } from "./thread-delete-button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-export const ThreadHeader = ({ thread }: { thread: ThreadPageData }) => {
+export const ThreadHeader = ({
+  thread,
+  user,
+}: {
+  thread: ThreadPageData;
+  user: Session["user"] | undefined;
+}) => {
   return (
     <header className="mb-8">
-      <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">{thread.title}</h1>
-      <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">{thread.description}</p>
+      <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">
+        {thread.title}
+      </h1>
+      <div className="prose dark:prose-invert mt-2 max-w-none">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {thread.description ?? ""}
+        </ReactMarkdown>
+      </div>
       <div className="flex items-center mt-4 space-x-4">
         <Avatar>
-          <AvatarImage src={thread.user.image ?? ""} alt={thread.user.name ?? ""} />
+          <AvatarImage
+            src={thread.user.image ?? ""}
+            alt={thread.user.name ?? ""}
+          />
           <AvatarFallback>{thread.user.name?.charAt(0)}</AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-semibold text-slate-900 dark:text-slate-50">{thread.user.name}</p>
+          <Link
+            href={`/profile/${thread.user.id}`}
+            className="font-semibold text-slate-900 dark:text-slate-50"
+          >
+            {thread.user.name}
+          </Link>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {thread.createAt.toLocaleDateString()}
           </p>
@@ -26,6 +53,16 @@ export const ThreadHeader = ({ thread }: { thread: ThreadPageData }) => {
           </Badge>
         ))}
       </div>
+      {user?.id === thread.user.id && (
+        <div className="mt-3 flex gap-2">
+          <Link href={`/thread/${thread.id}/edit`}>
+            <Button variant="edit">
+              <EditIcon />
+            </Button>
+          </Link>
+          <ThreadDeleteButton threadId={thread.id} />
+        </div>
+      )}
     </header>
   );
 };

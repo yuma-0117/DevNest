@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { fetchThreadByIdAction } from "@/lib/actions/thread";
+import { auth } from "@/lib/auth";
 import { ThreadPageData } from "@/types";
 
 import { PlusIcon } from "../../../components/icons/plus-icon";
@@ -14,6 +15,7 @@ const ThreadPage = async ({
   params: Promise<{ threadId: string }>;
 }) => {
   const { threadId } = await params;
+  const session = await auth();
 
   const thread: ThreadPageData | null = await fetchThreadByIdAction(threadId);
 
@@ -23,13 +25,13 @@ const ThreadPage = async ({
 
   return (
     <div className="container mx-auto py-8">
-      <ThreadHeader thread={thread} />
+      <ThreadHeader thread={thread} user={session?.user} />
       <PostList posts={thread.posts} />
       <Link
         href={`/thread/${threadId}/post/create`}
         className="fixed bottom-3 right-3"
       >
-        <Button className="rounded-full">
+        <Button className="rounded-full size-14" asChild>
           <PlusIcon />
         </Button>
       </Link>

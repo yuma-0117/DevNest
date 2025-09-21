@@ -42,6 +42,7 @@ export const fetchThreadByIdAction = async (id?: string) => {
 
       user: {
         select: {
+          id: true,
           name: true,
           image: true,
         },
@@ -115,13 +116,26 @@ export const createThreadAction = async (
 export const updateThreadAction = async (
   id: string,
   title: string,
-  description: string
+  description: string,
+  tags: string[]
 ) => {
+  const tagCreateOperations = tags.map((tagName) =>
+    prisma.tag.upsert({
+      where: { name: tagName },
+      update: {},
+      create: { name: tagName },
+    })
+  );
+  const createdTags = await prisma.$transaction(tagCreateOperations);
+
   const thread = await prisma.thread.update({
     where: { id },
     data: {
       title,
       description,
+      tags: {
+        set: createdTags.map((tag) => ({ id: tag.id })),
+      },
     },
     include: {
       tags: true,
@@ -133,7 +147,20 @@ export const updateThreadAction = async (
 };
 
 export const deleteThreadAction = async (id?: string) => {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+
   if (!id) return null;
+
+  const thread = await prisma.thread.findUnique({
+    where: { id },
+    select: { userId: true },
+  });
+
+  if (!thread || thread.userId !== session.user.id) {
+    return null;
+  }
+
   await prisma.thread.delete({
     where: { id },
   });
