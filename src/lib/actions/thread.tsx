@@ -49,6 +49,7 @@ export const fetchThreadByIdAction = async (id?: string) => {
       },
 
       posts: {
+        where: { parentId: { equals: null } },
         select: {
           id: true,
           content: true,
@@ -65,6 +66,11 @@ export const fetchThreadByIdAction = async (id?: string) => {
           tags: {
             select: {
               name: true,
+            },
+          },
+          replies: {
+            select: {
+              id: true,
             },
           },
         },

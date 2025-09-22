@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -7,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { z } from "zod";
 
+import { formSchema } from "@/app/thread/[threadId]/post/create/components/schema";
 import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
 import { TagsField } from "@/app/thread/create/components/fields/tags-field";
 import { Button } from "@/components/ui/button";
@@ -20,20 +22,21 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { createPostAction } from "@/lib/actions/post";
+import { ThreadPageData } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { formSchema } from "./schema";
+type Post = ThreadPageData["posts"][0];
 
 type Tag = {
   id: string;
   name: string;
 };
 
-export const PostCreateForm = ({
-  threadId,
+export const PostReplyForm = ({
+  post,
   allTags,
 }: {
-  threadId: string;
+  post: Post; // Include tags in Post type
   allTags: Tag[];
 }) => {
   const [tab, setTab] = useState<"write" | "preview">("write");
@@ -43,7 +46,7 @@ export const PostCreateForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: "",
-      tags: "",
+      tags: "", // Populate tags
     },
   });
 
@@ -53,9 +56,18 @@ export const PostCreateForm = ({
       .map((tag) => tag.trim())
       .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    await createPostAction(values.content, threadId, tagsArray);
-    router.push(`/thread/${threadId}`);
-    router.refresh();
+    const createdPost = await createPostAction(
+      values.content,
+      post.threadId,
+      tagsArray,
+      post.id // Pass parentId
+    ); // Pass tags
+    if (createdPost) {
+      router.push(`/thread/${post.threadId}`);
+      router.refresh();
+    } else {
+      alert("Failed to update post.");
+    }
   };
 
   return (
@@ -106,13 +118,13 @@ export const PostCreateForm = ({
             />
             <TagsField />
             <TagSuggestion allTags={allTags} />
-            <Button type="submit">Create Post</Button>
+            <Button type="submit">Reply Post</Button>
           </form>
         </Form>
       </FormProvider>
-      <Button variant="secondary" onClick={() => router.back()}>
-        Cancel
-      </Button>
+      <Link href={`/thread/${post.threadId}`}>
+        <Button variant="secondary">Cancel</Button>
+      </Link>
     </div>
   );
 };

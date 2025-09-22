@@ -46,9 +46,15 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
             image: true;
           };
         };
+
         tags: {
           select: {
             name: true;
+          };
+        };
+        replies: {
+          select: {
+            id: true;
           };
         };
       };

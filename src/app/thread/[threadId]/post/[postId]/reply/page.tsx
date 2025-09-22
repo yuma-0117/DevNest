@@ -1,11 +1,13 @@
+import { notFound } from "next/navigation";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPostByIdAction } from "@/lib/actions/post";
-import { notFound } from "next/navigation";
-import { PostEditForm } from "./components/post-edit-form";
-import { auth } from "@/lib/auth";
 import { fetchAllTagsAction } from "@/lib/actions/tag";
+import { auth } from "@/lib/auth";
 
-const EditPostPage = async ({
+import { PostReplyForm } from "./components/post-reply-form";
+
+const ReplyPostPage = async ({
   params,
 }: {
   params: Promise<{ postId: string }>;
@@ -26,14 +28,14 @@ const EditPostPage = async ({
     <div className="container mx-auto py-8 flex justify-center">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>Edit post</CardTitle>
+          <CardTitle>Reply post</CardTitle>
         </CardHeader>
         <CardContent>
-          <PostEditForm post={post} allTags={allTags} />
+          <PostReplyForm post={post} allTags={allTags} />
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default EditPostPage;
+export default ReplyPostPage;

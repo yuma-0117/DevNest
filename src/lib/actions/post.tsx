@@ -3,19 +3,21 @@
 import { prisma } from "../db/prisma";
 import { auth } from "@/lib/auth";
 
-export const fetchAllPostsAction = async (threadId?: string) => {
-  const posts = await prisma.post.findMany({
-    where: { threadId },
-    orderBy: { createAt: "desc" },
+export const fetchPostByIdAction = async (id?: string) => {
+  if (!id) return null;
+
+  const post = await prisma.post.findUnique({
+    where: { id },
     select: {
       id: true,
       content: true,
       createAt: true,
-
+      threadId: true,
       user: {
         select: {
           id: true,
           name: true,
+          image: true,
         },
       },
 
@@ -24,19 +26,11 @@ export const fetchAllPostsAction = async (threadId?: string) => {
           name: true,
         },
       },
-    },
-  });
-  console.log(posts);
-  return posts;
-};
-
-export const fetchPostByIdAction = async (id?: string) => {
-  if (!id) return null;
-
-  const post = await prisma.post.findUnique({
-    where: { id },
-    include: {
-      tags: true,
+      replies: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
 
@@ -46,7 +40,8 @@ export const fetchPostByIdAction = async (id?: string) => {
 export const createPostAction = async (
   content: string,
   threadId: string,
-  tags: string[]
+  tags: string[],
+  parentId?: string
 ) => {
   const session = await auth();
   if (!session?.user?.id) return null;
@@ -62,6 +57,7 @@ export const createPostAction = async (
           create: { name: tag },
         })),
       },
+      parentId,
     },
   });
   console.log(post);

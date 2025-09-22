@@ -1,20 +1,26 @@
-import remarkGfm from "remark-gfm";
-import Markdown from "react-markdown";
+"use client";
+
 import { Session } from "next-auth";
 import Link from "next/link";
+import { useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ThreadPageData } from "@/types";
+
 import { EditIcon } from "./icons/edit-icon";
+import { ReplyIcon } from "./icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
+import { fetchPostByIdAction } from "@/lib/actions/post";
 
 type Post = ThreadPageData["posts"][0];
 
@@ -25,57 +31,92 @@ export const PostCard = ({
   post: Post;
   user: Session["user"] | undefined;
 }) => {
+  const [replies, setReplies] = useState<Post[]>([]);
+
   const isAuthor = post.user.id === user?.id;
 
+  const fetchReplies = async () => {
+    post.replies.map(async (reply) => {
+      const replyData = await fetchPostByIdAction(reply.id);
+      setReplies((prevReplies) => {
+        if (!replyData) return prevReplies;
+        return [...prevReplies, replyData];
+      });
+    });
+  };
+
   return (
-    <Card key={post.id}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage
-                src={post.user.image ?? ""}
-                alt={post.user.name ?? ""}
-              />
-              <AvatarFallback>{post.user.name?.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-semibold text-slate-900 dark:text-slate-50">
-                {post.user.name}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {post.createAt.toLocaleDateString()}
-              </p>
+    <div>
+      <Card key={post.id}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage
+                  src={post.user.image ?? ""}
+                  alt={post.user.name ?? ""}
+                />
+                <AvatarFallback>{post.user.name?.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-slate-50">
+                  {post.user.name}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {post.createAt.toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              {isAuthor && (
+                <div className="flex gap-2">
+                  <Link href={`/thread/${post.threadId}/post/${post.id}/edit`}>
+                    <Button variant="edit">
+                      <EditIcon />
+                    </Button>
+                  </Link>
+                  <PostDeleteButton postId={post.id} />
+                </div>
+              )}
+              <div>
+                <Link href={`/thread/${post.threadId}/post/${post.id}/reply`}>
+                  <Button variant="secondary">
+                    <ReplyIcon />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
-          {isAuthor && (
-            <div className="flex gap-2">
-              <Link href={`/thread/${post.threadId}/post/${post.id}/edit`}>
-                <Button variant="edit">
-                  <EditIcon />
-                </Button>
-              </Link>
-              <PostDeleteButton postId={post.id} />
+        </CardHeader>
+        <CardContent>
+          <article className="text-gray-700 dark:text-gray-300 prose dark:prose-invert">
+            <Markdown remarkPlugins={[remarkGfm]}>{post.content}</Markdown>
+          </article>
+        </CardContent>
+        {post.tags && post.tags.length > 0 && (
+          <CardFooter>
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <Badge key={tag.name} variant="default">
+                  {tag.name}
+                </Badge>
+              ))}
             </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <article className="text-gray-700 dark:text-gray-300 prose dark:prose-invert">
-          <Markdown remarkPlugins={[remarkGfm]}>{post.content}</Markdown>
-        </article>
-      </CardContent>
-      {post.tags && post.tags.length > 0 && (
-        <CardFooter>
-          <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <Badge key={tag.name} variant="default">
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
-        </CardFooter>
+          </CardFooter>
+        )}
+      </Card>
+      {post.replies && post.replies.length > 0 && replies.length === 0 && (
+        <Button variant="ghost" onClick={fetchReplies}>
+          Show replies
+        </Button>
       )}
-    </Card>
+      {replies.length > 0 && (
+        <div className="scale-95">
+          {replies.map((reply) => (
+            <PostCard key={reply.id} post={reply} user={user} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
