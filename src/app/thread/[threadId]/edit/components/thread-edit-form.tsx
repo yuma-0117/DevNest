@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
-import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useRouter } from 'next/navigation';
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useRouter } from "next/navigation";
 
-import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
-import { formSchema } from '@/app/thread/create/components/schema';
-import { updateThreadAction } from '@/lib/actions/thread';
-import { TitleField } from '@/app/thread/create/components/fields/title-field';
-import { DescriptionField } from '@/app/thread/create/components/fields/description-field';
-import { TagsField } from '@/app/thread/create/components/fields/tags-field';
-import { TagSuggestion } from '@/app/thread/create/components/fields/tag-suggestion';
-import { ThreadPageData } from '@/types';
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { formSchema } from "@/app/thread/create/components/schema";
+import { updateThreadAction } from "@/lib/actions/thread";
+import { TitleField } from "@/app/thread/create/components/fields/title-field";
+import { DescriptionField } from "@/app/thread/create/components/fields/description-field";
+import { TagsField } from "@/app/thread/create/components/fields/tags-field";
+import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
+import { ThreadPageData } from "@/types";
 
 type Tag = {
+  id: string;
   name: string;
 };
 
@@ -31,16 +32,16 @@ export const ThreadEditForm = ({ allTags, thread }: ThreadEditFormProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: thread.title,
-      description: thread.description ?? '',
-      tags: thread.tags.map((tag) => tag.name).join(','),
+      description: thread.description ?? "",
+      tags: thread.tags.map((tag) => tag.name).join(","),
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const tagsArray = values.tags
-      .split(',')
+      .split(",")
       .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== '');
+      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
     const updatedThread = await updateThreadAction(
       thread.id,

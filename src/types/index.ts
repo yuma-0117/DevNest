@@ -38,8 +38,10 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
         id: true;
         content: true;
         createAt: true;
+        threadId: true;
         user: {
           select: {
+            id: true;
             name: true;
             image: true;
           };
