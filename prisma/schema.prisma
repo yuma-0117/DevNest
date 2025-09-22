@@ -88,7 +88,7 @@ model Thread {
   createAt    DateTime @default(now()) @map("created_at")
 
   userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   posts  Post[]
   tags   Tag[]
 }
@@ -99,13 +99,13 @@ model Post {
   createAt DateTime @default(now())
 
   userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   threadId String @map("thread_id")
-  thread   Thread @relation(fields: [threadId], references: [id])
+  thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   parentId String? @map("parent_id")
-  parent   Post?   @relation("PostReplies", fields: [parentId], references: [id])
+  parent   Post?   @relation("PostReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies  Post[]  @relation("PostReplies")
 
   tags Tag[]
