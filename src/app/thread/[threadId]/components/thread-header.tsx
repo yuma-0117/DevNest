@@ -18,10 +18,10 @@ export const ThreadHeader = ({
 }) => {
   return (
     <header className="mb-8">
-      <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">
+      <h1 className="text-4xl font-bold text-foreground dark:text-foreground">
         {thread.title}
       </h1>
-      <div className="prose dark:prose-invert mt-2 max-w-none">
+      <div className="prose dark:prose-invert mt-2 max-w-none scale-95 border rounded-md p-4 shadow-md">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {thread.description ?? ""}
         </ReactMarkdown>
@@ -37,11 +37,11 @@ export const ThreadHeader = ({
         <div>
           <Link
             href={`/profile/${thread.user.id}`}
-            className="font-semibold text-slate-900 dark:text-slate-50"
+            className="font-semibold text-foreground dark:text-foreground"
           >
             {thread.user.name}
           </Link>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             {thread.createAt.toLocaleDateString()}
           </p>
         </div>

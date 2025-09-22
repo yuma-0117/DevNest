@@ -59,10 +59,10 @@ export const PostCard = ({
                 <AvatarFallback>{post.user.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-semibold text-slate-900 dark:text-slate-50">
+                <p className="font-semibold text-foreground dark:text-foreground">
                   {post.user.name}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   {post.createAt.toLocaleDateString()}
                 </p>
               </div>
@@ -89,7 +89,7 @@ export const PostCard = ({
           </div>
         </CardHeader>
         <CardContent>
-          <article className="text-gray-700 dark:text-gray-300 prose dark:prose-invert">
+          <article className="text-foreground dark:text-muted-foreground prose dark:prose-invert">
             <Markdown remarkPlugins={[remarkGfm]}>{post.content}</Markdown>
           </article>
         </CardContent>

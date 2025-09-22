@@ -75,7 +75,7 @@ export const fetchThreadByIdAction = async (id?: string) => {
           },
         },
 
-        orderBy: { createAt: "desc" },
+        orderBy: { createAt: "asc" },
       },
 
       tags: {

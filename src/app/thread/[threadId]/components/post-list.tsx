@@ -13,7 +13,7 @@ export const PostList = ({
 }) => {
   return (
     <main>
-      <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-slate-50">
+      <h2 className="text-2xl font-bold mb-4 text-foreground dark:text-foreground">
         Posts
       </h2>
       <div className="space-y-6">

@@ -29,17 +29,17 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
             <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <p className="font-semibold text-slate-900 dark:text-slate-50">
+                        <p className="font-semibold text-foreground dark:text-foreground">
               {user.name}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               {createAt.toLocaleDateString()}
             </p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+        <h2 className="text-2xl font-bold text-foreground dark:text-foreground">
           {title}
         </h2>
         <div className="prose dark:prose-invert mt-2 truncate">
