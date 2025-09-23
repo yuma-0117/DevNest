@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Suspense } from "react";
 
@@ -18,10 +17,9 @@ import SignIn from "../auth/sign-in-form";
 import SignOut from "../auth/sign-out-form";
 import { ThemeToggle } from "../theme/theme-trigger";
 import Link from "next/link";
+import { Session } from "next-auth";
 
-export const Header = () => {
-  const { data: session } = useSession();
-
+export const Header = ({ session }: { session: Session | null }) => {
   return (
     <div className="flex items-center justify-between bg-gray-300 dark:bg-gray-700 p-2 sticky top-0 z-10">
       <div className="flex items-center">
@@ -56,6 +54,11 @@ export const Header = () => {
               <DropdownMenuContent>
                 <DropdownMenuLabel>{session.user.name ?? ""}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {session.user.id && (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/user/${session.user.id}`}>Profile</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem>
                   <SignOut />
                 </DropdownMenuItem>

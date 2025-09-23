@@ -18,6 +18,17 @@ export const fetchUserByIdAction = async (id?: string) => {
           title: true,
           description: true,
           createAt: true,
+          user: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+          tags: {
+            select: {
+              name: true,
+            },
+          },
         },
       },
 
@@ -26,6 +37,7 @@ export const fetchUserByIdAction = async (id?: string) => {
           id: true,
           content: true,
           createAt: true,
+          threadId: true,
         },
       },
     },

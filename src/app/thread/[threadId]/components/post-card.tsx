@@ -15,12 +15,12 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { fetchPostByIdAction } from "@/lib/actions/post";
 import { ThreadPageData } from "@/types";
 
 import { EditIcon } from "./icons/edit-icon";
 import { ReplyIcon } from "./icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
-import { fetchPostByIdAction } from "@/lib/actions/post";
 
 type Post = ThreadPageData["posts"][0];
 
@@ -51,17 +51,21 @@ export const PostCard = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Avatar>
-                <AvatarImage
-                  src={post.user.image ?? ""}
-                  alt={post.user.name ?? ""}
-                />
-                <AvatarFallback>{post.user.name?.charAt(0)}</AvatarFallback>
-              </Avatar>
+              <Link href={`/user/${post.user.id}`}>
+                <Avatar>
+                  <AvatarImage
+                    src={post.user.image ?? ""}
+                    alt={post.user.name ?? ""}
+                  />
+                  <AvatarFallback>{post.user.name?.charAt(0)}</AvatarFallback>
+                </Avatar>
+              </Link>
               <div>
-                <p className="font-semibold text-foreground dark:text-foreground">
-                  {post.user.name}
-                </p>
+                <Link href={`/user/${post.user.id}`}>
+                  <p className="font-semibold text-foreground dark:text-foreground hover:underline">
+                    {post.user.name}
+                  </p>
+                </Link>
                 <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   {post.createAt.toLocaleDateString()}
                 </p>

@@ -1,13 +1,15 @@
+import { Session } from "next-auth";
+import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThreadPageData } from "@/types";
-import { Session } from "next-auth";
-import Link from "next/link";
+
 import { EditIcon } from "./icons/edit-icon";
 import { ThreadDeleteButton } from "./thread-delete-button";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 export const ThreadHeader = ({
   thread,
@@ -27,16 +29,18 @@ export const ThreadHeader = ({
         </ReactMarkdown>
       </div>
       <div className="flex items-center mt-4 space-x-4">
-        <Avatar>
-          <AvatarImage
-            src={thread.user.image ?? ""}
-            alt={thread.user.name ?? ""}
-          />
-          <AvatarFallback>{thread.user.name?.charAt(0)}</AvatarFallback>
-        </Avatar>
+        <Link href={`/user/${thread.user.id}`}>
+          <Avatar>
+            <AvatarImage
+              src={thread.user.image ?? ""}
+              alt={thread.user.name ?? ""}
+            />
+            <AvatarFallback>{thread.user.name?.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </Link>
         <div>
           <Link
-            href={`/profile/${thread.user.id}`}
+            href={`/user/${thread.user.id}`}
             className="font-semibold text-foreground dark:text-foreground"
           >
             {thread.user.name}

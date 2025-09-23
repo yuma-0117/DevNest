@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -29,7 +31,7 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
             <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-                        <p className="font-semibold text-foreground dark:text-foreground">
+            <p className="font-semibold text-foreground dark:text-foreground">
               {user.name}
             </p>
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">

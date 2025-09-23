@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-import { SessionProvider } from "next-auth/react";
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "./components/theme/theme-provider";
 
 import { Header } from "./components/layout/header";
+import { auth } from "@/lib/auth";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -17,11 +17,13 @@ export const metadata: Metadata = {
   description: "An internet message board for engineers",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable} antialiased`}>
@@ -31,9 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider>
-            <Header />
-          </SessionProvider>
+          <Header session={session} />
         </ThemeProvider>
         <main>{children}</main>
       </body>
