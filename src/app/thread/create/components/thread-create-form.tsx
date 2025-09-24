@@ -43,7 +43,7 @@ export const ThreadCreateForm = ({ allTags }: ThreadCreateFormProps) => {
     const tagsArray = values.tags
       .split(",")
       .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== " ");
+      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
     const newThread = await createThreadAction(
       values.title,

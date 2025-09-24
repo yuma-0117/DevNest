@@ -7,6 +7,7 @@ import { ThreadWithUserAndTags } from "@/types";
 
 import { ThreadCard } from "./thread-card";
 import { ThreadCardSkeleton } from "./thread-card-skeleton";
+import { supabase } from "@/lib/db/supabase";
 
 export const ThreadList = () => {
   const [threads, setThreads] = useState<ThreadWithUserAndTags[]>([]);
@@ -20,6 +21,30 @@ export const ThreadList = () => {
       setLoading(false);
     };
     fetchAllThreads();
+
+    const subscription = supabase
+      .channel("thread")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Thread" },
+        async (payload) => {
+          if (payload.eventType === "DELETE") return;
+          await fetchAllThreads();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Tag" },
+        async (payload) => {
+          if (payload.eventType === "DELETE") return;
+          await fetchAllThreads();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   if (loading) {

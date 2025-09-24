@@ -38,6 +38,10 @@ export const ThreadEditForm = ({ allTags, thread }: ThreadEditFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (values.tags.charAt(values.tags.length - 1) === ",") {
+      values.tags = values.tags.slice(0, -1);
+    }
+
     const tagsArray = values.tags
       .split(",")
       .map((tag) => tag.trim())
