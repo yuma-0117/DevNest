@@ -8,8 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThreadPageData } from "@/types";
 
-import { EditIcon } from "./icons/edit-icon";
-import { ThreadDeleteButton } from "./thread-delete-button";
+import { EditIcon } from "../icons/edit-icon";
 
 export const ThreadHeader = ({
   thread,
@@ -64,7 +63,6 @@ export const ThreadHeader = ({
               <EditIcon />
             </Button>
           </Link>
-          <ThreadDeleteButton threadId={thread.id} />
         </div>
       )}
     </header>

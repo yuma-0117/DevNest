@@ -153,24 +153,3 @@ export const updateThreadAction = async (
   console.log(thread);
   return thread;
 };
-
-export const deleteThreadAction = async (id?: string) => {
-  const session = await auth();
-  if (!session?.user?.id) return null;
-
-  if (!id) return null;
-
-  const thread = await prisma.thread.findUnique({
-    where: { id },
-    select: { userId: true },
-  });
-
-  if (!thread || thread.userId !== session.user.id) {
-    return null;
-  }
-
-  await prisma.thread.delete({
-    where: { id },
-  });
-  return true;
-};

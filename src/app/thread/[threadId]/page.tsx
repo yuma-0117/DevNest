@@ -6,8 +6,8 @@ import { auth } from "@/lib/auth";
 import { ThreadPageData } from "@/types";
 
 import { PlusIcon } from "../../../components/icons/plus-icon";
-import { PostList } from "./components/post-list";
-import { ThreadHeader } from "./components/thread-header";
+import { PostList } from "./components/post/post-list";
+import { ThreadHeader } from "./components/thread/thread-header";
 
 const ThreadPage = async ({
   params,

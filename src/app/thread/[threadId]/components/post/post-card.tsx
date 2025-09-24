@@ -18,8 +18,8 @@ import {
 import { fetchPostByIdAction } from "@/lib/actions/post";
 import { ThreadPageData } from "@/types";
 
-import { EditIcon } from "./icons/edit-icon";
-import { ReplyIcon } from "./icons/reply-icon";
+import { EditIcon } from "../icons/edit-icon";
+import { ReplyIcon } from "../icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
 
 type Post = ThreadPageData["posts"][0];
