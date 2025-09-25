@@ -1,5 +1,3 @@
-"use client";
-
 import { Session } from "next-auth";
 import Link from "next/link";
 import { useState } from "react";
@@ -16,6 +14,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { fetchPostByIdAction } from "@/lib/actions/post";
+import { formatDistanceToNow } from "@/lib/utils";
 import { ThreadPageData } from "@/types";
 
 import { EditIcon } from "../icons/edit-icon";
@@ -47,7 +46,7 @@ export const PostCard = ({
 
   return (
     <div>
-      <Card key={post.id}>
+      <Card key={post.id} className="bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -67,7 +66,7 @@ export const PostCard = ({
                   </p>
                 </Link>
                 <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                  {post.createAt.toLocaleDateString()}
+                  {formatDistanceToNow(post.createAt)}
                 </p>
               </div>
             </div>
@@ -75,8 +74,9 @@ export const PostCard = ({
               {isAuthor && (
                 <div className="flex gap-2">
                   <Link href={`/thread/${post.threadId}/post/${post.id}/edit`}>
-                    <Button variant="edit">
-                      <EditIcon />
+                    <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
+                      <EditIcon className="mr-2 size-4" />
+                      Edit Post
                     </Button>
                   </Link>
                   <PostDeleteButton postId={post.id} />
@@ -84,8 +84,9 @@ export const PostCard = ({
               )}
               <div>
                 <Link href={`/thread/${post.threadId}/post/${post.id}/reply`}>
-                  <Button variant="secondary">
-                    <ReplyIcon />
+                  <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
+                    <ReplyIcon className="mr-2 size-4" />
+                    Reply
                   </Button>
                 </Link>
               </div>

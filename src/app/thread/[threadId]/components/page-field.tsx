@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { ThreadPageData } from "@/types";
 
 import { PostList } from "./post/post-list";
+import { PostListSkeleton } from "./post/post-list-skeleton";
 import { ThreadHeader } from "./thread/thread-header";
+import { ThreadHeaderSkeleton } from "./thread/thread-header-skeleton";
 import { fetchThreadByIdAction } from "@/lib/actions/thread";
 import { supabase } from "@/lib/db/supabase";
 
@@ -66,7 +68,12 @@ export const PageField = ({
   }, [threadId]);
 
   if (!thread) {
-    return <div>Loading thread...</div>;
+    return (
+      <div className="container mx-auto py-8">
+        <ThreadHeaderSkeleton />
+        <PostListSkeleton />
+      </div>
+    );
   }
 
   return (
@@ -77,8 +84,9 @@ export const PageField = ({
         href={`/thread/${threadId}/post/create`}
         className="fixed bottom-3 right-3"
       >
-        <Button className="rounded-full size-14" asChild>
-          <PlusIcon />
+        <Button className="flex items-center justify-center rounded-full pr-4 shadow-lg bg-primary/70 backdrop-blur-lg border border-primary/50 hover:bg-primary/80">
+          <PlusIcon className="mr-2 size-4" />
+          New Post
         </Button>
       </Link>
     </div>

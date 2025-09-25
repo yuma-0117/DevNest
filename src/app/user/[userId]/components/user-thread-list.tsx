@@ -6,6 +6,14 @@ type Props = {
 };
 
 export const UserThreadList = ({ threads }: Props) => {
+  if (threads.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground mt-8">
+        This user has not created any threads yet.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {threads.map((thread) => (

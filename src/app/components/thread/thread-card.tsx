@@ -13,15 +13,17 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { ThreadWithUserAndTags } from "@/types";
+import { formatDistanceToNow } from "@/lib/utils";
+import { MessageCircleIcon } from "../icons/message-circle-icon";
 
 export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
-  const { title, description, createAt, user, tags } = thread;
+  const { title, description, createAt, user, tags, _count } = thread;
 
   const router = useRouter();
 
   return (
     <Card
-      className="transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]"
+      className="transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] cursor-pointer bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50"
       onClick={() => router.push(`/thread/${thread.id}`)}
     >
       <CardHeader>
@@ -35,28 +37,32 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
               {user.name}
             </p>
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              {createAt.toLocaleDateString()}
+              {formatDistanceToNow(createAt)}
             </p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <h2 className="text-2xl font-bold text-foreground dark:text-foreground">
+        <h2 className="text-3xl font-extrabold text-foreground dark:text-foreground mb-3">
           {title}
         </h2>
-        <div className="prose dark:prose-invert mt-2 truncate">
+        <div className="prose dark:prose-invert mt-2 line-clamp-3">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {description ?? ""}
           </ReactMarkdown>
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex justify-between items-center">
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <Badge key={tag.name} variant="default">
+            <Badge key={tag.name} variant="secondary">
               {tag.name}
             </Badge>
           ))}
+        </div>
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <MessageCircleIcon className="size-4" />
+          <span>{_count.posts}</span>
         </div>
       </CardFooter>
     </Card>

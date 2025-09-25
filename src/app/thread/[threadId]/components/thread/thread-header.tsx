@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThreadPageData } from "@/types";
+import { formatDistanceToNow } from "@/lib/utils";
 
 import { EditIcon } from "../icons/edit-icon";
 
@@ -22,7 +23,7 @@ export const ThreadHeader = ({
       <h1 className="text-4xl font-bold text-foreground dark:text-foreground">
         {thread.title}
       </h1>
-      <div className="prose dark:prose-invert mt-2 max-w-none scale-95 border rounded-md p-4 shadow-md">
+      <div className="prose dark:prose-invert mt-2 max-w-none border rounded-md p-4 shadow-md bg-card/70 backdrop-blur-lg border-border/50">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {thread.description ?? ""}
         </ReactMarkdown>
@@ -40,18 +41,18 @@ export const ThreadHeader = ({
         <div>
           <Link
             href={`/user/${thread.user.id}`}
-            className="font-semibold text-foreground dark:text-foreground"
+            className="font-semibold text-foreground dark:text-foreground hover:underline"
           >
             {thread.user.name}
           </Link>
           <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-            {thread.createAt.toLocaleDateString()}
+            {formatDistanceToNow(thread.createAt)}
           </p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {thread.tags.map((tag) => (
-          <Badge key={tag.name} variant="default">
+          <Badge key={tag.name} variant="secondary">
             {tag.name}
           </Badge>
         ))}
@@ -59,8 +60,9 @@ export const ThreadHeader = ({
       {user?.id === thread.user.id && (
         <div className="mt-3 flex gap-2">
           <Link href={`/thread/${thread.id}/edit`}>
-            <Button variant="edit">
-              <EditIcon />
+            <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
+              <EditIcon className="mr-2 size-4" />
+              Edit Thread
             </Button>
           </Link>
         </div>

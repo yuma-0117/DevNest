@@ -19,7 +19,7 @@ export const UserProfile = async ({ userId }: Props) => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50">
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">

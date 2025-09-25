@@ -17,6 +17,11 @@ export type ThreadWithUserAndTags = Prisma.ThreadGetPayload<{
         name: true;
       };
     };
+    _count: {
+      select: {
+        posts: true;
+      };
+    };
   };
 }>;
 

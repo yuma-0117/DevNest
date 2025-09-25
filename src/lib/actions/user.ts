@@ -29,6 +29,11 @@ export const fetchUserByIdAction = async (id?: string) => {
               name: true,
             },
           },
+          _count: {
+            select: {
+              posts: true,
+            },
+          },
         },
       },
 
@@ -38,6 +43,11 @@ export const fetchUserByIdAction = async (id?: string) => {
           content: true,
           createAt: true,
           threadId: true,
+          thread: {
+            select: {
+              title: true,
+            },
+          },
         },
       },
     },

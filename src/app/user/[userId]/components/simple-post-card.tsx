@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { fetchUserByIdAction } from "@/lib/actions/user";
+import { formatDistanceToNow } from "@/lib/utils";
 
 type Props = {
   post: NonNullable<
@@ -13,13 +14,16 @@ type Props = {
 
 export const SimplePostCard = ({ post }: Props) => {
   return (
-    <Card>
+    <Card className="bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50">
       <CardHeader>
         <Link href={`/thread/${post.threadId}`}>
           <p className="text-sm text-muted-foreground hover:underline">
-            in Thread
+            {post.thread.title}
           </p>
         </Link>
+        <p className="text-xs text-muted-foreground">
+          {formatDistanceToNow(post.createAt)}
+        </p>
       </CardHeader>
       <CardContent>
         <article className="prose dark:prose-invert">

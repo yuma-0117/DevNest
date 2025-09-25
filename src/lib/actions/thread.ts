@@ -23,6 +23,11 @@ export const fetchAllThreadsAction = async () => {
           name: true,
         },
       },
+      _count: {
+        select: {
+          posts: true,
+        },
+      },
     },
   });
   console.log(threads);

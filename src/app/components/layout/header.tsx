@@ -21,12 +21,12 @@ import { Session } from "next-auth";
 
 export const Header = ({ session }: { session: Session | null }) => {
   return (
-    <div className="flex items-center justify-between bg-gray-300 dark:bg-gray-700 p-2 sticky top-0 z-10">
+    <div className="flex items-center justify-between bg-background/70 backdrop-blur-lg p-2 sticky top-0 z-10 border-b border-border/50">
       <div className="flex items-center">
         <Image src="/logo.png" alt="DevNest" width={60} height={60} priority />
         <Link
           href="/"
-          className="text-2xl font-bold text-gray-800 dark:text-gray-200 ml-2 hover:bg-gray-400 dark:hover:bg-gray-800 rounded-md p-2 transition-all duration-200"
+          className="text-2xl font-bold text-foreground ml-2 hover:bg-accent/50 rounded-md p-2 transition-all duration-200"
         >
           DevNest
         </Link>
@@ -51,7 +51,7 @@ export const Header = ({ session }: { session: Session | null }) => {
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent className="bg-card/70 backdrop-blur-lg border border-border/50">
                 <DropdownMenuLabel>{session.user.name ?? ""}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {session.user.id && (
