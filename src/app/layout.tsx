@@ -27,6 +27,25 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable} antialiased min-h-screen`}>
+        <svg style={{ display: "none" }}>
+          <filter id="liquidGlassFilter">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.05"
+              numOctaves="3"
+              result="turbulence"
+            />
+            <feGaussianBlur in="turbulence" stdDeviation="5" result="softMap" />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="softMap"
+              scale="50"
+              xChannelSelector="R"
+              yChannelSelector="G"
+              result="displacement"
+            />
+          </filter>
+        </svg>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

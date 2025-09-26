@@ -23,7 +23,7 @@ export const ThreadHeader = ({
       <h1 className="text-4xl font-bold text-foreground dark:text-foreground">
         {thread.title}
       </h1>
-      <div className="prose dark:prose-invert mt-2 max-w-none border rounded-md p-4 shadow-md bg-card/70 backdrop-blur-lg border-border/50">
+      <div className="prose dark:prose-invert mt-2 max-w-none p-4 liquid-glass-card liquid-glass-filter">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {thread.description ?? ""}
         </ReactMarkdown>

@@ -23,7 +23,7 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
 
   return (
     <Card
-      className="transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] cursor-pointer bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50"
+      className="transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] cursor-pointer liquid-glass-card liquid-glass-filter"
       onClick={() => router.push(`/thread/${thread.id}`)}
     >
       <CardHeader>

@@ -14,7 +14,7 @@ type Props = {
 
 export const SimplePostCard = ({ post }: Props) => {
   return (
-    <Card className="bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50">
+    <Card className="liquid-glass-card liquid-glass-filter">
       <CardHeader>
         <Link href={`/thread/${post.threadId}`}>
           <p className="text-sm text-muted-foreground hover:underline">

@@ -21,7 +21,7 @@ import { Session } from "next-auth";
 
 export const Header = ({ session }: { session: Session | null }) => {
   return (
-    <div className="flex items-center justify-between bg-background/70 backdrop-blur-lg p-2 sticky top-0 z-10 border-b border-border/50">
+    <div className="flex items-center justify-between bg-background/70 p-2 sticky top-0 z-10 border-b border-border/50 liquid-glass-filter">
       <div className="flex items-center">
         <Image src="/logo.png" alt="DevNest" width={60} height={60} priority />
         <Link
@@ -51,7 +51,7 @@ export const Header = ({ session }: { session: Session | null }) => {
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card/70 backdrop-blur-lg border border-border/50">
+              <DropdownMenuContent className="liquid-glass-card liquid-glass-filter">
                 <DropdownMenuLabel>{session.user.name ?? ""}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {session.user.id && (

@@ -46,7 +46,7 @@ export const PostCard = ({
 
   return (
     <div>
-      <Card key={post.id} className="bg-card/70 backdrop-blur-lg shadow-lg rounded-xl border border-border/50">
+      <Card key={post.id} className="liquid-glass-card liquid-glass-filter">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
