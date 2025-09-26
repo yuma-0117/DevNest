@@ -41,7 +41,7 @@ export const PostDeleteButton = ({ postId }: PostDeleteButtonProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="delete" disabled={isDeleting}>
+        <Button variant="destructive" disabled={isDeleting}>
           {isDeleting ? "Deleting..." : <DeleteIcon />}
         </Button>
       </AlertDialogTrigger>
@@ -49,7 +49,8 @@ export const PostDeleteButton = ({ postId }: PostDeleteButtonProps) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your post.
+            This action cannot be undone. This will permanently delete your
+            post.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
