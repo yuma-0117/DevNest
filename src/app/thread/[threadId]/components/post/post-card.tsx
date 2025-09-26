@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/card";
 import { fetchPostByIdAction } from "@/lib/actions/post";
 import { formatDistanceToNow } from "@/lib/utils";
-import { ThreadPageData } from "@/types";
+import { ThreadPageData } from "@/types/thread";
 
-import { EditIcon } from "../icons/edit-icon";
-import { ReplyIcon } from "../icons/reply-icon";
+import { EditIcon } from "@/components/icons/edit-icon";
+import { ReplyIcon } from "@/components/icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
 
 type Post = ThreadPageData["posts"][0];
@@ -36,10 +36,14 @@ export const PostCard = ({
 
   const fetchReplies = async () => {
     post.replies.map(async (reply) => {
-      const replyData = await fetchPostByIdAction(reply.id);
+      const response = await fetchPostByIdAction(reply.id);
       setReplies((prevReplies) => {
-        if (!replyData) return prevReplies;
-        return [...prevReplies, replyData];
+        if (response.success) {
+          return [...prevReplies, response.data];
+        } else {
+          console.error("Failed to fetch reply:", response.error);
+          return prevReplies;
+        }
       });
     });
   };

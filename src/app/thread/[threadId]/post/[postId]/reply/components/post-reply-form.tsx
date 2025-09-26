@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { createPostAction } from "@/lib/actions/post";
-import { ThreadPageData } from "@/types";
+import { ThreadPageData } from "@/types/thread";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 type Post = ThreadPageData["posts"][0];

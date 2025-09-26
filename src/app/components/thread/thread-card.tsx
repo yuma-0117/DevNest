@@ -4,17 +4,20 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+
+
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { ThreadWithUserAndTags } from "@/types";
-import { formatDistanceToNow } from "@/lib/utils";
-import { MessageCircleIcon } from "../icons/message-circle-icon";
+import { ThreadWithUserAndTags } from "@/types/thread";
+
+import { TagList } from "@/components/common/tag-list";
+import { MessageCircleIcon } from "@/components/icons/message-circle-icon";
+
+import { UserDisplay } from "@/components/common/user-display";
 
 export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
   const { title, description, createAt, user, tags, _count } = thread;
@@ -27,20 +30,7 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
       onClick={() => router.push(`/thread/${thread.id}`)}
     >
       <CardHeader>
-        <div className="flex items-center space-x-4">
-          <Avatar>
-            <AvatarImage src={user.image ?? ""} alt={user.name ?? ""} />
-            <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <p className="font-semibold text-foreground dark:text-foreground">
-              {user.name}
-            </p>
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              {formatDistanceToNow(createAt)}
-            </p>
-          </div>
-        </div>
+        <UserDisplay user={user} createAt={createAt} />
       </CardHeader>
       <CardContent>
         <h2 className="text-3xl font-extrabold text-foreground dark:text-foreground mb-3">
@@ -53,13 +43,7 @@ export const ThreadCard = ({ thread }: { thread: ThreadWithUserAndTags }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <Badge key={tag.name} variant="secondary">
-              {tag.name}
-            </Badge>
-          ))}
-        </div>
+        <TagList tags={tags} />
         <div className="flex items-center gap-1 text-muted-foreground">
           <MessageCircleIcon className="size-4" />
           <span>{_count.posts}</span>

@@ -1,40 +1,55 @@
+// Server actions for managing posts (create, read, update, delete).
 "use server";
 
-import { prisma } from "../db/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
+import { ActionResponse } from "@/types/common";
+import { PostWithUserAndTagsAndReplies } from "@/types/post";
+import { Prisma } from "@prisma/client";
 
-export const fetchPostByIdAction = async (id?: string) => {
-  if (!id) return null;
+export const fetchPostByIdAction = async (id?: string): Promise<ActionResponse<PostWithUserAndTagsAndReplies>> => {
+  if (!id) {
+    return { success: false, error: "Post ID is required." };
+  }
 
-  const post = await prisma.post.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      content: true,
-      createAt: true,
-      threadId: true,
-      user: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        content: true,
+        createAt: true,
+        threadId: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+
+        tags: {
+          select: {
+            name: true,
+          },
+        },
+        replies: {
+          select: {
+            id: true,
+          },
         },
       },
+    });
 
-      tags: {
-        select: {
-          name: true,
-        },
-      },
-      replies: {
-        select: {
-          id: true,
-        },
-      },
-    },
-  });
+    if (!post) {
+      return { success: false, error: "Post not found." };
+    }
 
-  return post;
+    return { success: true, data: post };
+  } catch (e) {
+    console.error("Error fetching post by ID:", e);
+    return { success: false, error: "Failed to fetch post." };
+  }
 };
 
 export const createPostAction = async (
@@ -42,84 +57,115 @@ export const createPostAction = async (
   threadId: string,
   tags: string[],
   parentId?: string
-) => {
+): Promise<ActionResponse<Prisma.PostGetPayload<{} /* eslint-disable-line @typescript-eslint/no-empty-object-type */>>> => {
   const session = await auth();
-  if (!session?.user?.id) return null;
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized", message: "User not authenticated." };
+  }
 
-  const post = await prisma.post.create({
-    data: {
-      content,
-      userId: session.user.id,
-      threadId,
-      tags: {
-        connectOrCreate: tags.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
+  try {
+    const post = await prisma.post.create({
+      data: {
+        content,
+        userId: session.user.id,
+        threadId,
+        tags: {
+          connectOrCreate: tags.map((tag) => ({
+            where: { name: tag },
+            create: { name: tag },
+          })),
+        },
+        parentId,
       },
-      parentId,
-    },
-  });
-  console.log(post);
-  return post;
+    });
+
+    return { success: true, data: post };
+  } catch (e) {
+    console.error("Error creating post:", e);
+    return { success: false, error: "Failed to create post." };
+  }
 };
 
 export const updatePostAction = async (
   id: string,
   content: string,
   tags: string[]
-) => {
+): Promise<ActionResponse<Prisma.PostGetPayload<{} /* eslint-disable-line @typescript-eslint/no-empty-object-type */>>> => {
   const session = await auth();
-  if (!session?.user?.id) return null;
-
-  const post = await prisma.post.findUnique({
-    where: { id },
-    select: { userId: true },
-  });
-
-  if (!post || post.userId !== session.user.id) {
-    return null;
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized", message: "User not authenticated." };
   }
 
-  const tagCreateOperations = tags.map((tagName) =>
-    prisma.tag.upsert({
-      where: { name: tagName },
-      update: {},
-      create: { name: tagName },
-    })
-  );
-  const createdTags = await prisma.$transaction(tagCreateOperations);
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
 
-  const updatedPost = await prisma.post.update({
-    where: { id },
-    data: {
-      content,
-      tags: {
-        set: createdTags.map((tag) => ({ id: tag.id })),
+    if (!post) {
+      return { success: false, error: "Not Found", message: "Post not found." };
+    }
+
+    if (post.userId !== session.user.id) {
+      return { success: false, error: "Forbidden", message: "User not authorized to update this post." };
+    }
+
+    const tagCreateOperations = tags.map((tagName) =>
+      prisma.tag.upsert({
+        where: { name: tagName },
+        update: {},
+        create: { name: tagName },
+      })
+    );
+    const createdTags = await prisma.$transaction(tagCreateOperations);
+
+    const updatedPost = await prisma.post.update({
+      where: { id },
+      data: {
+        content,
+        tags: {
+          set: createdTags.map((tag) => ({ id: tag.id })),
+        },
       },
-    },
-  });
-  console.log(updatedPost);
-  return updatedPost;
+    });
+
+    return { success: true, data: updatedPost };
+  } catch (e) {
+    console.error("Error updating post:", e);
+    return { success: false, error: "Failed to update post." };
+  }
 };
 
-export const deletePostAction = async (id?: string) => {
+export const deletePostAction = async (id?: string): Promise<ActionResponse<boolean>> => {
   const session = await auth();
-  if (!session?.user?.id) return null;
-
-  if (!id) return null;
-
-  const post = await prisma.post.findUnique({
-    where: { id },
-    select: { userId: true },
-  });
-
-  if (!post || post.userId !== session.user.id) {
-    return null;
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized", message: "User not authenticated." };
   }
 
-  await prisma.post.delete({
-    where: { id },
-  });
-  return true;
+  if (!id) {
+    return { success: false, error: "Post ID is required." };
+  }
+
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+
+    if (!post) {
+      return { success: false, error: "Not Found", message: "Post not found." };
+    }
+
+    if (post.userId !== session.user.id) {
+      return { success: false, error: "Forbidden", message: "User not authorized to delete this post." };
+    }
+
+    await prisma.post.delete({
+      where: { id },
+    });
+    return { success: true, data: true };
+  } catch (e) {
+    console.error("Error deleting post:", e);
+    return { success: false, error: "Failed to delete post." };
+  }
 };

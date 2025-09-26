@@ -11,11 +11,13 @@ type Props = {
 };
 
 export const UserProfile = async ({ userId }: Props) => {
-  const user = await fetchUserByIdAction(userId);
+  const response = await fetchUserByIdAction(userId);
 
-  if (!user) {
+  if (!response.success) {
+    console.error("Failed to fetch user:", response.error);
     return <div>User not found</div>;
   }
+  const user = response.data;
 
   return (
     <div className="space-y-4">

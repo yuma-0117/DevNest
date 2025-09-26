@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { deletePostAction } from "@/lib/actions/post";
 
-import { DeleteIcon } from "../icons/delete-icon";
+import { DeleteIcon } from "@/components/icons/delete-icon";
 
 interface PostDeleteButtonProps {
   postId: string;

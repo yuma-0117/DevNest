@@ -45,14 +45,17 @@ export const ThreadCreateForm = ({ allTags }: ThreadCreateFormProps) => {
       .map((tag) => tag.trim())
       .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    const newThread = await createThreadAction(
+    const response = await createThreadAction(
       values.title,
       values.description,
       tagsArray
     );
 
-    if (newThread) {
-      router.push(`/thread/${newThread.id}`);
+    if (response.success) {
+      router.push(`/thread/${response.data.id}`);
+    } else {
+      console.error("Failed to create thread:", response.error);
+      // Optionally, display an error message to the user
     }
   };
 

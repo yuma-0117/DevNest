@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { Button } from "@/components/ui/button";
-import { ThreadPageData } from "@/types";
+import { ThreadPageData } from "@/types/thread";
 
 import { PostList } from "./post/post-list";
 import { PostListSkeleton } from "./post/post-list-skeleton";
@@ -26,8 +26,13 @@ export const PageField = ({
 
   useEffect(() => {
     const fetchThreadById = async () => {
-      const thread = await fetchThreadByIdAction(threadId);
-      setThread(thread);
+      const response = await fetchThreadByIdAction(threadId);
+      if (response.success) {
+        setThread(response.data);
+      } else {
+        console.error("Failed to fetch thread by ID:", response.error);
+        setThread(null);
+      }
     };
 
     if (threadId) {

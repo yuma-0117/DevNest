@@ -13,7 +13,7 @@ import { TitleField } from "@/app/thread/create/components/fields/title-field";
 import { DescriptionField } from "@/app/thread/create/components/fields/description-field";
 import { TagsField } from "@/app/thread/create/components/fields/tags-field";
 import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
-import { ThreadPageData } from "@/types";
+import { ThreadPageData } from "@/types/thread";
 
 type Tag = {
   id: string;
@@ -47,15 +47,18 @@ export const ThreadEditForm = ({ allTags, thread }: ThreadEditFormProps) => {
       .map((tag) => tag.trim())
       .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    const updatedThread = await updateThreadAction(
+    const response = await updateThreadAction(
       thread.id,
       values.title,
       values.description,
       tagsArray
     );
 
-    if (updatedThread) {
-      router.push(`/thread/${updatedThread.id}`);
+    if (response.success) {
+      router.push(`/thread/${response.data.id}`);
+    } else {
+      console.error("Failed to update thread:", response.error);
+      // Optionally, display an error message to the user
     }
   };
 

@@ -1,9 +1,9 @@
-import { fetchUserByIdAction } from "@/lib/actions/user";
+import { UserWithThreadsAndPosts } from "@/types/user";
 
 import { SimplePostCard } from "./simple-post-card";
 
 type Props = {
-  posts: NonNullable<Awaited<ReturnType<typeof fetchUserByIdAction>>>["posts"];
+  posts: UserWithThreadsAndPosts["posts"];
 };
 
 export const UserPostList = ({ posts }: Props) => {

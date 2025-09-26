@@ -1,5 +1,5 @@
 import { ThreadCard } from "@/app/components/thread/thread-card";
-import { ThreadWithUserAndTags } from "@/types";
+import { ThreadWithUserAndTags } from "@/types/thread";
 
 type Props = {
   threads: ThreadWithUserAndTags[];

@@ -6,10 +6,10 @@ import remarkGfm from "remark-gfm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ThreadPageData } from "@/types";
+import { ThreadPageData } from "@/types/thread";
 import { formatDistanceToNow } from "@/lib/utils";
 
-import { EditIcon } from "../icons/edit-icon";
+import { EditIcon } from "@/components/icons/edit-icon";
 
 export const ThreadHeader = ({
   thread,

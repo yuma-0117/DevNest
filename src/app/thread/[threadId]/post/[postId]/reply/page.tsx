@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPostByIdAction } from "@/lib/actions/post";
 import { fetchAllTagsAction } from "@/lib/actions/tag";
-import { auth } from "@/lib/auth";
+
 
 import { PostReplyForm } from "./components/post-reply-form";
 
@@ -12,17 +12,21 @@ const ReplyPostPage = async ({
 }: {
   params: Promise<{ postId: string }>;
 }) => {
-  const session = await auth();
-  const post = await fetchPostByIdAction((await params).postId);
-  const allTags = await fetchAllTagsAction();
+  const postId = (await params).postId;
+  const postResponse = await fetchPostByIdAction(postId);
 
-  if (!post) {
+  if (!postResponse.success) {
+    console.error("Failed to fetch post:", postResponse.error);
     notFound();
   }
+  const post = postResponse.data;
 
-  if (session?.user?.id !== post.user.id) {
+  const allTagsResponse = await fetchAllTagsAction();
+  if (!allTagsResponse.success) {
+    console.error("Failed to fetch tags:", allTagsResponse.error);
     notFound();
   }
+  const allTags = allTagsResponse.data;
 
   return (
     <div className="container mx-auto py-8 flex justify-center">

@@ -3,7 +3,12 @@ import { fetchAllTagsAction } from "@/lib/actions/tag";
 import { ThreadCreateForm } from "./components/thread-create-form";
 
 const CreateThreadPage = async () => {
-  const allTags = await fetchAllTagsAction();
+  const allTagsResponse = await fetchAllTagsAction();
+  if (!allTagsResponse.success) {
+    console.error("Failed to fetch tags:", allTagsResponse.error);
+    return null;
+  }
+  const allTags = allTagsResponse.data;
 
   return (
     <div className="container mx-auto py-8 flex justify-center">

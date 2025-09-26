@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { fetchAllThreadsAction } from "@/lib/actions/thread";
-import { ThreadWithUserAndTags } from "@/types";
+import { ThreadWithUserAndTags } from "@/types/thread";
 
 import { ThreadCard } from "./thread-card";
 import { ThreadCardSkeleton } from "./thread-card-skeleton";
@@ -16,8 +16,13 @@ export const ThreadList = () => {
   useEffect(() => {
     const fetchAllThreads = async () => {
       setLoading(true);
-      const threads = await fetchAllThreadsAction();
-      setThreads(threads);
+      const response = await fetchAllThreadsAction();
+      if (response.success) {
+        setThreads(response.data);
+      } else {
+        console.error("Failed to fetch threads:", response.error);
+        setThreads([]);
+      }
       setLoading(false);
     };
     fetchAllThreads();

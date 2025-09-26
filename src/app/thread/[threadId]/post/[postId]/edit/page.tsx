@@ -11,16 +11,25 @@ const EditPostPage = async ({
   params: Promise<{ postId: string }>;
 }) => {
   const session = await auth();
-  const post = await fetchPostByIdAction((await params).postId);
-  const allTags = await fetchAllTagsAction();
+  const postId = (await params).postId;
+  const postResponse = await fetchPostByIdAction(postId);
 
-  if (!post) {
+  if (!postResponse.success) {
+    console.error("Failed to fetch post:", postResponse.error);
     notFound();
   }
+  const post = postResponse.data;
 
   if (session?.user?.id !== post.user.id) {
     notFound();
   }
+
+  const allTagsResponse = await fetchAllTagsAction();
+  if (!allTagsResponse.success) {
+    console.error("Failed to fetch tags:", allTagsResponse.error);
+    notFound();
+  }
+  const allTags = allTagsResponse.data;
 
   return (
     <div className="container mx-auto py-8 flex justify-center">

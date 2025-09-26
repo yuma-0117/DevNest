@@ -3,13 +3,11 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { fetchUserByIdAction } from "@/lib/actions/user";
 import { formatDistanceToNow } from "@/lib/utils";
+import { UserWithThreadsAndPosts } from "@/types/user";
 
 type Props = {
-  post: NonNullable<
-    Awaited<ReturnType<typeof fetchUserByIdAction>>
-  >["posts"][0];
+  post: UserWithThreadsAndPosts["posts"][0];
 };
 
 export const SimplePostCard = ({ post }: Props) => {

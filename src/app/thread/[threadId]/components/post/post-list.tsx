@@ -1,4 +1,4 @@
-import { ThreadPageData } from "@/types";
+import { ThreadPageData } from "@/types/thread";
 import { PostCard } from "./post-card";
 import { Session } from "next-auth";
 
