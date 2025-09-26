@@ -53,8 +53,8 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Header session={session} />
+          <main>{children}</main>
         </ThemeProvider>
-        <main>{children}</main>
       </body>
     </html>
   );
