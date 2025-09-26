@@ -22,7 +22,7 @@ const EditThreadPage = async ({ params }: { params: { threadId: string } }) => {
 
   return (
     <div className="container mx-auto py-8 flex justify-center">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl liquid-glass-card">
         <CardHeader>
           <CardTitle>Edit thread</CardTitle>
         </CardHeader>

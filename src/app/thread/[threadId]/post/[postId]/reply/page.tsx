@@ -26,7 +26,7 @@ const ReplyPostPage = async ({
 
   return (
     <div className="container mx-auto py-8 flex justify-center">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl liquid-glass-card">
         <CardHeader>
           <CardTitle>Reply post</CardTitle>
         </CardHeader>

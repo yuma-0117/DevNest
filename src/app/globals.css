@@ -193,9 +193,6 @@ body {
   border: 1px solid oklch(from var(--border) l c h / 0.3);
   box-shadow: var(--shadow-lg);
   border-radius: var(--radius-xl);
-}
-
-.liquid-glass-filter {
-  -webkit-backdrop-filter: blur(10px) url(#liquidGlassFilter);
+  -webkit-backdrop-filter: blur(10px) saturate(180%) url(#liquidGlassFilter);
   backdrop-filter: blur(10px) saturate(180%) url(#liquidGlassFilter);
 }

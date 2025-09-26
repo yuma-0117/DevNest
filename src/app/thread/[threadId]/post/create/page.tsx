@@ -18,7 +18,7 @@ const CreatePostPage = async ({
 
   return (
     <div className="container mx-auto py-8 flex justify-center">
-      <Card className="w-full max-w-4xl">
+      <Card className="w-full max-w-4xl liquid-glass-card">
         <CardHeader>
           <CardTitle>Create a new post</CardTitle>
         </CardHeader>
