@@ -23,8 +23,10 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  threads Thread[]
-  posts   Post[]
+  posts  Post[]
+  Thread Thread[]
+
+  @@index([createdAt])
 }
 
 model Account {
@@ -93,6 +95,9 @@ model Thread {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   posts  Post[]
   tags   Tag[]
+
+  @@index([createAt])
+  @@index([userId])
 }
 
 model Post {
@@ -111,6 +116,11 @@ model Post {
   replies  Post[]  @relation("PostReplies")
 
   tags Tag[]
+
+  @@index([createAt])
+  @@index([userId])
+  @@index([threadId])
+  @@index([parentId])
 }
 
 model Tag {
