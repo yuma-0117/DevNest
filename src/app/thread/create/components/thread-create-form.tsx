@@ -67,7 +67,9 @@ export const ThreadCreateForm = ({ allTags }: ThreadCreateFormProps) => {
           <DescriptionField />
           <TagsField />
           <TagSuggestion allTags={allTags} />
-          <Button type="submit">Create Thread</Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Creating..." : "Create Thread"}
+          </Button>
         </form>
       </Form>
     </FormProvider>

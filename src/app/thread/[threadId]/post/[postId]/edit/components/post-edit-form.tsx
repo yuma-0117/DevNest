@@ -117,7 +117,9 @@ export const PostEditForm = ({
             />
             <TagsField />
             <TagSuggestion allTags={allTags} />
-            <Button type="submit">Update Post</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Updating..." : "Update Post"}
+            </Button>
           </form>
         </Form>
       </FormProvider>

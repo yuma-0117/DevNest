@@ -118,7 +118,9 @@ export const PostReplyForm = ({
             />
             <TagsField />
             <TagSuggestion allTags={allTags} />
-            <Button type="submit">Reply Post</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Replying..." : "Reply Post"}
+            </Button>
           </form>
         </Form>
       </FormProvider>

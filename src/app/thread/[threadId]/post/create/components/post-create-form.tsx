@@ -106,7 +106,9 @@ export const PostCreateForm = ({
             />
             <TagsField />
             <TagSuggestion allTags={allTags} />
-            <Button type="submit">Create Post</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Creating..." : "Create Post"}
+            </Button>
           </form>
         </Form>
       </FormProvider>
