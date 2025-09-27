@@ -13,9 +13,9 @@ export const UserProfileSkeleton = () => {
               <CardTitle className="text-2xl font-bold">
                 <Skeleton className="h-6 w-32" />
               </CardTitle>
-              <p className="text-muted-foreground">
+              <div className="text-muted-foreground">
                 <Skeleton className="h-4 w-48 mt-2" />
-              </p>
+              </div>
             </div>
           </div>
         </CardHeader>
