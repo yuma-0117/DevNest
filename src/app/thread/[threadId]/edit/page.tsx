@@ -5,9 +5,13 @@ import { ThreadEditForm } from "./components/thread-edit-form";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 
-const EditThreadPage = async ({ params }: { params: { threadId: string } }) => {
+const EditThreadPage = async ({
+  params,
+}: {
+  params: Promise<{ threadId: string }>;
+}) => {
   const session = await auth();
-  const threadResponse = await fetchThreadByIdAction(params.threadId);
+  const threadResponse = await fetchThreadByIdAction((await params).threadId);
 
   if (!threadResponse.success) {
     console.error("Failed to fetch thread:", threadResponse.error);

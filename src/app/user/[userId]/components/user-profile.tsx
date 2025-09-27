@@ -2,15 +2,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchUserByIdAction } from "@/lib/actions/user";
+import { auth } from "@/lib/auth"; // New import
 
 import { UserPostList } from "./user-post-list";
 import { UserThreadList } from "./user-thread-list";
+import { AnonymousToggle } from "./anonymous-toggle"; // New import
 
 type Props = {
   userId: string;
 };
 
 export const UserProfile = async ({ userId }: Props) => {
+  const session = await auth(); // Fetch session
   const response = await fetchUserByIdAction(userId);
 
   if (!response.success) {
@@ -18,6 +21,8 @@ export const UserProfile = async ({ userId }: Props) => {
     return <div>User not found</div>;
   }
   const user = response.data;
+
+  const isCurrentUser = session?.user?.id === userId; // Check if current user
 
   return (
     <div className="space-y-4">
@@ -31,6 +36,11 @@ export const UserProfile = async ({ userId }: Props) => {
             <div>
               <CardTitle className="text-2xl font-bold">{user.name}</CardTitle>
               <p className="text-muted-foreground">{user.email}</p>
+              {isCurrentUser && ( // Conditionally render toggle
+                <div className="mt-2">
+                  <AnonymousToggle userId={user.id} initialIsAnonymous={user.isAnonymous} />
+                </div>
+              )}
             </div>
           </div>
         </CardHeader>

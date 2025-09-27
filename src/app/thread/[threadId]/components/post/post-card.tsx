@@ -34,6 +34,10 @@ export const PostCard = ({
 
   const isAuthor = post.user.id === user?.id;
 
+  // Determine display name based on isAnonymous status
+  const displayName = post.user.isAnonymous ? "anonymous" : post.user.name;
+  // No need for displayImage, AvatarFallback will handle it
+
   const fetchReplies = async () => {
     post.replies.map(async (reply) => {
       const response = await fetchPostByIdAction(reply.id);
@@ -54,21 +58,35 @@ export const PostCard = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link href={`/user/${post.user.id}`}>
+              {/* Link to user profile, but only if not anonymous */}
+              {post.user.isAnonymous ? (
                 <Avatar>
-                  <AvatarImage
-                    src={post.user.image ?? ""}
-                    alt={post.user.name ?? ""}
-                  />
-                  <AvatarFallback>{post.user.name?.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={""} alt={displayName ?? ""} /> {/* src is empty */}
+                  <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
                 </Avatar>
-              </Link>
-              <div>
+              ) : (
                 <Link href={`/user/${post.user.id}`}>
-                  <p className="font-semibold text-foreground dark:text-foreground hover:underline">
-                    {post.user.name}
-                  </p>
+                  <Avatar>
+                    <AvatarImage
+                      src={post.user.image ?? ""}
+                      alt={displayName ?? ""}
+                    />
+                    <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
+                  </Avatar>
                 </Link>
+              )}
+              <div>
+                {post.user.isAnonymous ? (
+                  <p className="font-semibold text-foreground dark:text-foreground">
+                    {displayName}
+                  </p>
+                ) : (
+                  <Link href={`/user/${post.user.id}`}>
+                    <p className="font-semibold text-foreground dark:text-foreground hover:underline">
+                      {displayName}
+                    </p>
+                  </Link>
+                )}
                 <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   {formatDistanceToNow(post.createAt)}
                 </p>

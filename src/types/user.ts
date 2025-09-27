@@ -6,6 +6,7 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
     name: true;
     email: true;
     image: true;
+    isAnonymous: true;
     threads: {
       select: {
         id: true;
@@ -16,6 +17,7 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
           select: {
             name: true;
             image: true;
+            isAnonymous: true;
           };
         };
         tags: {
@@ -36,6 +38,14 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
         content: true;
         createAt: true;
         threadId: true;
+        user: {
+          select: {
+            id: true;
+            name: true;
+            image: true;
+            isAnonymous: true;
+          };
+        };
         thread: {
           select: {
             title: true;

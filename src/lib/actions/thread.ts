@@ -1,3 +1,4 @@
+// src/lib/actions/thread.ts
 // Server actions for managing threads (create, read, update).
 "use server";
 
@@ -20,6 +21,7 @@ export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWith
           select: {
             name: true,
             image: true,
+            isAnonymous: true, // Added isAnonymous
           },
         },
 
@@ -62,6 +64,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
             id: true,
             name: true,
             image: true,
+            isAnonymous: true, // Added isAnonymous
           },
         },
 
@@ -77,6 +80,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
                 id: true,
                 name: true,
                 image: true,
+                isAnonymous: true, // Added isAnonymous
               },
             },
 

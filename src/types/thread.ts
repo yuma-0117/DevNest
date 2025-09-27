@@ -10,6 +10,7 @@ export type ThreadWithUserAndTags = Prisma.ThreadGetPayload<{
       select: {
         name: true;
         image: true;
+        isAnonymous: true;
       };
     };
     tags: {
@@ -36,6 +37,7 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
         id: true;
         name: true;
         image: true;
+        isAnonymous: true;
       };
     };
     posts: {
@@ -49,8 +51,10 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
             id: true;
             name: true;
             image: true;
+            isAnonymous: true;
           };
         };
+
 
         tags: {
           select: {

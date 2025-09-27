@@ -11,6 +11,7 @@ export type PostWithUserAndTagsAndReplies = Prisma.PostGetPayload<{
         id: true;
         name: true;
         image: true;
+        isAnonymous: true;
       };
     };
     tags: {

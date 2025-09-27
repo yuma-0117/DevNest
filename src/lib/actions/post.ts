@@ -25,6 +25,7 @@ export const fetchPostByIdAction = async (id?: string): Promise<ActionResponse<P
             id: true,
             name: true,
             image: true,
+            isAnonymous: true, // Added isAnonymous
           },
         },
 

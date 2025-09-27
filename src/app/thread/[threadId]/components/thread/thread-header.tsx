@@ -18,6 +18,10 @@ export const ThreadHeader = ({
   thread: ThreadPageData;
   user: Session["user"] | undefined;
 }) => {
+  // Determine display name based on isAnonymous status
+  const displayName = thread.user.isAnonymous ? "anonymous" : thread.user.name;
+  // No need for displayImage, AvatarFallback will handle it
+
   return (
     <header className="mb-8">
       <h1 className="text-4xl font-bold text-foreground dark:text-foreground">
@@ -29,22 +33,36 @@ export const ThreadHeader = ({
         </ReactMarkdown>
       </div>
       <div className="flex items-center mt-4 space-x-4">
-        <Link href={`/user/${thread.user.id}`}>
+        {/* Link to user profile, but only if not anonymous */}
+        {thread.user.isAnonymous ? (
           <Avatar>
-            <AvatarImage
-              src={thread.user.image ?? ""}
-              alt={thread.user.name ?? ""}
-            />
-            <AvatarFallback>{thread.user.name?.charAt(0)}</AvatarFallback>
+            <AvatarImage src={""} alt={displayName ?? ""} /> {/* src is empty */}
+            <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
           </Avatar>
-        </Link>
-        <div>
-          <Link
-            href={`/user/${thread.user.id}`}
-            className="font-semibold text-foreground dark:text-foreground hover:underline"
-          >
-            {thread.user.name}
+        ) : (
+          <Link href={`/user/${thread.user.id}`}>
+            <Avatar>
+              <AvatarImage
+                src={thread.user.image ?? ""}
+                alt={displayName ?? ""}
+              />
+              <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
+            </Avatar>
           </Link>
+        )}
+        <div>
+          {thread.user.isAnonymous ? (
+            <p className="font-semibold text-foreground dark:text-foreground">
+              {displayName}
+            </p>
+          ) : (
+            <Link
+              href={`/user/${thread.user.id}`}
+              className="font-semibold text-foreground dark:text-foreground hover:underline"
+            >
+              {displayName}
+            </Link>
+          )}
           <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             {formatDistanceToNow(thread.createAt)}
           </p>

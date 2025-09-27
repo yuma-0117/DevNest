@@ -1,3 +1,4 @@
+// src/lib/actions/user.ts
 // Server actions for managing users (e.g., fetching user by ID, deleting user).
 "use server";
 
@@ -19,6 +20,7 @@ export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<U
         name: true,
         email: true,
         image: true,
+        isAnonymous: true, // Include new field
 
         threads: {
           select: {
@@ -30,6 +32,7 @@ export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<U
               select: {
                 name: true,
                 image: true,
+                isAnonymous: true, // Include new field
               },
             },
             tags: {
@@ -51,6 +54,14 @@ export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<U
             content: true,
             createAt: true,
             threadId: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                isAnonymous: true,
+              },
+            },
             thread: {
               select: {
                 title: true,
@@ -102,5 +113,32 @@ export const deleteUserByIdAction = async (id?: string): Promise<ActionResponse<
   } catch (e) {
     console.error("Error deleting user by ID:", e);
     return { success: false, error: "Failed to delete user." };
+  }
+};
+
+// New server action to update user's anonymous status
+export const updateUserAnonymousStatusAction = async (
+  userId: string,
+  isAnonymous: boolean
+): Promise<ActionResponse<boolean>> => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized", message: "User not authenticated." };
+  }
+
+  // Ensure the authenticated user is updating their own profile
+  if (session.user.id !== userId) {
+    return { success: false, error: "Forbidden", message: "You can only update your own anonymous status." };
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isAnonymous: isAnonymous },
+    });
+    return { success: true, data: true };
+  } catch (e) {
+    console.error("Error updating user anonymous status:", e);
+    return { success: false, error: "Failed to update anonymous status." };
   }
 };
