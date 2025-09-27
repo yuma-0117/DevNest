@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation"; // New import for redirect
+import { auth } from "@/lib/auth"; // New import
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPostByIdAction } from "@/lib/actions/post";
@@ -13,6 +14,11 @@ const ReplyPostPage = async ({
   params: Promise<{ postId: string }>;
 }) => {
   const postId = (await params).postId;
+  const session = await auth(); // Get session
+  if (!session?.user?.id) {
+    redirect("/api/auth/signin"); // Redirect to sign-in page if not authenticated
+  }
+
   const postResponse = await fetchPostByIdAction(postId);
 
   if (!postResponse.success) {

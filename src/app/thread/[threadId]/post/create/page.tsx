@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { fetchAllTagsAction } from "@/lib/actions/tag";
+import { redirect } from "next/navigation"; // New import
 
 import { PostCreateForm } from "./components/post-create-form";
 
@@ -12,7 +13,9 @@ const CreatePostPage = async ({
   const { threadId } = await params;
   const session = await auth();
 
-  if (!session?.user?.id) return null;
+  if (!session?.user?.id) {
+    redirect("/api/auth/signin"); // Redirect to sign-in page if not authenticated
+  }
 
   const allTagsResponse = await fetchAllTagsAction();
   if (!allTagsResponse.success) {
