@@ -6,22 +6,27 @@ import { prisma } from "@/lib/db/prisma";
 import { ActionResponse } from "@/types/common";
 import { ThreadWithUserAndTags, ThreadPageData } from "@/types/thread";
 import { Prisma } from "@prisma/client";
+import { auth } from "@/lib/auth";
 
 export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWithUserAndTags[]>> => {
   try {
     const threads = await prisma.thread.findMany({
-      orderBy: { createAt: "desc" },
+      orderBy: [
+        { isPinned: "desc" }, // Pinned threads first
+        { createAt: "desc" }, // Then by creation date
+      ],
       select: {
         id: true,
         title: true,
         description: true,
         createAt: true,
+        isPinned: true, // Include new field
 
         user: {
           select: {
             name: true,
             image: true,
-            isAnonymous: true, // Added isAnonymous
+            isAnonymous: true,
           },
         },
 
@@ -58,13 +63,14 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
         title: true,
         description: true,
         createAt: true,
+        isPinned: true, // Include new field
 
         user: {
           select: {
             id: true,
             name: true,
             image: true,
-            isAnonymous: true, // Added isAnonymous
+            isAnonymous: true,
           },
         },
 
@@ -80,7 +86,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
                 id: true,
                 name: true,
                 image: true,
-                isAnonymous: true, // Added isAnonymous
+                isAnonymous: true,
               },
             },
 
@@ -117,8 +123,6 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
     return { success: false, error: "Failed to fetch thread." };
   }
 };
-
-import { auth } from "@/lib/auth";
 
 export const createThreadAction = async (
   title: string,
@@ -207,5 +211,41 @@ export const updateThreadAction = async (
   } catch (e) {
     console.error("Error updating thread:", e);
     return { success: false, error: "Failed to update thread." };
+  }
+};
+
+// New server action to update thread's pinned status
+export const updateThreadPinnedStatusAction = async (
+  threadId: string,
+  isPinned: boolean
+): Promise<ActionResponse<boolean>> => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized", message: "User not authenticated." };
+  }
+
+  try {
+    const thread = await prisma.thread.findUnique({
+      where: { id: threadId },
+      select: { userId: true },
+    });
+
+    if (!thread) {
+      return { success: false, error: "Not Found", message: "Thread not found." };
+    }
+
+    // Only the thread author can pin/unpin their thread
+    if (thread.userId !== session.user.id) {
+      return { success: false, error: "Forbidden", message: "You can only update your own thread's pinned status." };
+    }
+
+    await prisma.thread.update({
+      where: { id: threadId },
+      data: { isPinned: isPinned },
+    });
+    return { success: true, data: true };
+  } catch (e) {
+    console.error("Error updating thread pinned status:", e);
+    return { success: false, error: "Failed to update thread pinned status." };
   }
 };

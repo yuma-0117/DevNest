@@ -6,6 +6,7 @@ import { ThemeProvider } from "./components/theme/theme-provider";
 
 import { Header } from "./components/layout/header";
 import { auth } from "@/lib/auth";
+import { SessionProviderWrapper } from "./components/auth/session-provider-wrapper"; // New import
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -52,8 +53,10 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header session={session} />
-          <main>{children}</main>
+          <SessionProviderWrapper> {/* Wrap children with SessionProviderWrapper */}
+            <Header session={session} />
+            <main>{children}</main>
+          </SessionProviderWrapper>
         </ThemeProvider>
       </body>
     </html>

@@ -28,6 +28,7 @@ export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<U
             title: true,
             description: true,
             createAt: true,
+            isPinned: true,
             user: {
               select: {
                 name: true,

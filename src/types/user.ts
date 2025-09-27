@@ -13,6 +13,7 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
         title: true;
         description: true;
         createAt: true;
+        isPinned: true;
         user: {
           select: {
             name: true;

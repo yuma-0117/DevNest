@@ -87,6 +87,7 @@ model Thread {
   title       String
   description String
   createAt    DateTime @default(now()) @map("created_at")
+  isPinned    Boolean  @default(false) // New field for pinning threads
 
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

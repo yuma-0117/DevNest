@@ -85,6 +85,9 @@ export const ThreadList = () => {
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
+  const pinnedThreads = threads.filter(thread => thread.isPinned);
+  const unpinnedThreads = threads.filter(thread => !thread.isPinned);
+
   return (
     <>
       {showRealtimeWarning && (
@@ -105,10 +108,28 @@ export const ThreadList = () => {
           No threads found. Be the first to create one!
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          {threads.map((thread) => (
-            <ThreadCard key={thread.id} thread={thread} />
-          ))}
+        <div className="mt-4">
+          {pinnedThreads.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-xl font-bold mb-3">Pinned Threads</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pinnedThreads.map((thread) => (
+                  <ThreadCard key={thread.id} thread={thread} isPinnedCard={true} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {unpinnedThreads.length > 0 && (
+            <div>
+              {pinnedThreads.length > 0 && <h3 className="text-xl font-bold mb-3">All Threads</h3>}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {unpinnedThreads.map((thread) => (
+                  <ThreadCard key={thread.id} thread={thread} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>

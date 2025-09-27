@@ -6,6 +6,7 @@ export type ThreadWithUserAndTags = Prisma.ThreadGetPayload<{
     title: true;
     description: true;
     createAt: true;
+    isPinned: true;
     user: {
       select: {
         name: true;
@@ -32,6 +33,7 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
     title: true;
     description: true;
     createAt: true;
+    isPinned: true;
     user: {
       select: {
         id: true;
