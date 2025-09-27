@@ -18,6 +18,7 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
           select: {
             name: true;
             image: true;
+            id: true;
             isAnonymous: true;
           };
         };

@@ -9,6 +9,7 @@ export type ThreadWithUserAndTags = Prisma.ThreadGetPayload<{
     isPinned: true;
     user: {
       select: {
+        id: true;
         name: true;
         image: true;
         isAnonymous: true;

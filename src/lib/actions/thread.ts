@@ -26,6 +26,7 @@ export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWith
           select: {
             name: true,
             image: true,
+            id: true,
             isAnonymous: true,
           },
         },
