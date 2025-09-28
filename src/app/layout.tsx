@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Roboto } from "next/font/google";
-import { ThemeProvider } from "./components/theme/theme-provider";
 
-import { Header } from "./components/layout/header";
 import { auth } from "@/lib/auth";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import { SessionProviderWrapper } from "./components/auth/session-provider-wrapper"; // New import
+import { Header } from "./components/layout/header";
+import { ThemeProvider } from "./components/theme/theme-provider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -28,6 +30,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable} antialiased min-h-screen`}>
+        <SpeedInsights />
         <svg style={{ display: "none" }}>
           <filter id="liquidGlassFilter">
             <feTurbulence
@@ -53,7 +56,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProviderWrapper> {/* Wrap children with SessionProviderWrapper */}
+          <SessionProviderWrapper>
+            {" "}
+            {/* Wrap children with SessionProviderWrapper */}
             <Header session={session} />
             <main>{children}</main>
           </SessionProviderWrapper>
