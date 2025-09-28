@@ -56,7 +56,7 @@ export const PostCard = ({
     <div>
       <Card key={post.id} className="liquid-glass-card liquid-glass-filter">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center space-x-4">
               {/* Link to user profile, but only if not anonymous */}
               {post.user.isAnonymous ? (
@@ -92,13 +92,13 @@ export const PostCard = ({
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               {isAuthor && (
                 <div className="flex gap-2">
                   <Link href={`/thread/${post.threadId}/post/${post.id}/edit`}>
                     <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
-                      <EditIcon className="mr-2 size-4" />
-                      Edit Post
+                      <EditIcon className="size-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Edit Post</span>
                     </Button>
                   </Link>
                   <PostDeleteButton postId={post.id} />
@@ -107,8 +107,8 @@ export const PostCard = ({
               <div>
                 <Link href={`/thread/${post.threadId}/post/${post.id}/reply`}>
                   <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
-                    <ReplyIcon className="mr-2 size-4" />
-                    Reply
+                    <ReplyIcon className="size-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Reply</span>
                   </Button>
                 </Link>
               </div>
