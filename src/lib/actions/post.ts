@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { ActionResponse } from "@/types/common";
 import { PostWithUserAndTagsAndReplies } from "@/types/post";
 import { Prisma } from "@prisma/client";
+import { revalidateTag } from 'next/cache';
 
 export const fetchPostByIdAction = async (id?: string): Promise<ActionResponse<PostWithUserAndTagsAndReplies>> => {
   if (!id) {
@@ -80,6 +81,9 @@ export const createPostAction = async (
       },
     });
 
+    revalidateTag('thread-' + threadId); // Revalidate specific thread cache
+    revalidateTag('threads'); // Revalidate all threads cache
+    revalidateTag('user-' + session.user.id); // Revalidate specific user cache
     return { success: true, data: post };
   } catch (e) {
     console.error("Error creating post:", e);
@@ -98,16 +102,16 @@ export const updatePostAction = async (
   }
 
   try {
-    const post = await prisma.post.findUnique({
+    const postToUpdate = await prisma.post.findUnique({
       where: { id },
-      select: { userId: true },
+      select: { userId: true, threadId: true }, // Select userId and threadId
     });
 
-    if (!post) {
+    if (!postToUpdate) {
       return { success: false, error: "Not Found", message: "Post not found." };
     }
 
-    if (post.userId !== session.user.id) {
+    if (postToUpdate.userId !== session.user.id) {
       return { success: false, error: "Forbidden", message: "User not authorized to update this post." };
     }
 
@@ -130,6 +134,9 @@ export const updatePostAction = async (
       },
     });
 
+    revalidateTag('thread-' + postToUpdate.threadId); // Revalidate specific thread cache
+    revalidateTag('threads'); // Revalidate all threads cache
+    revalidateTag('user-' + postToUpdate.userId); // Revalidate specific user cache
     return { success: true, data: updatedPost };
   } catch (e) {
     console.error("Error updating post:", e);
@@ -148,22 +155,26 @@ export const deletePostAction = async (id?: string): Promise<ActionResponse<bool
   }
 
   try {
-    const post = await prisma.post.findUnique({
+    const postToDelete = await prisma.post.findUnique({
       where: { id },
-      select: { userId: true },
+      select: { userId: true, threadId: true }, // Select userId and threadId
     });
 
-    if (!post) {
+    if (!postToDelete) {
       return { success: false, error: "Not Found", message: "Post not found." };
     }
 
-    if (post.userId !== session.user.id) {
+    if (postToDelete.userId !== session.user.id) {
       return { success: false, error: "Forbidden", message: "User not authorized to delete this post." };
     }
 
     await prisma.post.delete({
       where: { id },
     });
+
+    revalidateTag('thread-' + postToDelete.threadId); // Revalidate specific thread cache
+    revalidateTag('threads'); // Revalidate all threads cache
+    revalidateTag('user-' + postToDelete.userId); // Revalidate specific user cache
     return { success: true, data: true };
   } catch (e) {
     console.error("Error deleting post:", e);
