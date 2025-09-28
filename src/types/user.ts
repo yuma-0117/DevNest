@@ -1,12 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    email: true;
-    image: true;
-    isAnonymous: true;
+  include: {
     threads: {
       select: {
         id: true;

@@ -8,41 +8,57 @@ import { ThreadWithUserAndTags, ThreadPageData } from "@/types/thread";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 
+import { unstable_cache, revalidateTag } from 'next/cache';
+
+// ... other imports
+
 export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWithUserAndTags[]>> => {
   try {
-    const threads = await prisma.thread.findMany({
-      orderBy: [
-        { isPinned: "desc" }, // Pinned threads first
-        { createAt: "desc" }, // Then by creation date
-      ],
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        createAt: true,
-        isPinned: true, // Include new field
-
-        user: {
+    const getCachedThreads = unstable_cache(
+      async () => {
+        const threads = await prisma.thread.findMany({
+          orderBy: [
+            { isPinned: "desc" }, // Pinned threads first
+            { createAt: "desc" }, // Then by creation date
+          ],
           select: {
-            name: true,
-            image: true,
             id: true,
-            isAnonymous: true,
-          },
-        },
+            title: true,
+            description: true,
+            createAt: true,
+            isPinned: true, // Include new field
 
-        tags: {
-          select: {
-            name: true,
+            user: {
+              select: {
+                name: true,
+                image: true,
+                id: true,
+                isAnonymous: true,
+              },
+            },
+
+            tags: {
+              select: {
+                name: true,
+              },
+            },
+            _count: {
+              select: {
+                posts: true,
+              },
+            },
           },
-        },
-        _count: {
-          select: {
-            posts: true,
-          },
-        },
+        });
+        return threads;
       },
-    });
+      ['all-threads'], // Key for the cache
+      {
+        tags: ['threads'], // Tag for revalidation
+        revalidate: 3600, // Revalidate every hour
+      }
+    );
+
+    const threads = await getCachedThreads();
 
     return { success: true, data: threads };
   } catch (e) {
@@ -57,31 +73,17 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
   }
 
   try {
-    const thread = await prisma.thread.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        createAt: true,
-        isPinned: true, // Include new field
-
-        user: {
+    const getCachedThread = unstable_cache(
+      async (threadId: string) => {
+        const thread = await prisma.thread.findUnique({
+          where: { id: threadId },
           select: {
             id: true,
-            name: true,
-            image: true,
-            isAnonymous: true,
-          },
-        },
-
-        posts: {
-          where: { parentId: { equals: null } },
-          select: {
-            id: true,
-            content: true,
+            title: true,
+            description: true,
             createAt: true,
-            threadId: true,
+            isPinned: true,
+
             user: {
               select: {
                 id: true,
@@ -91,28 +93,54 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
               },
             },
 
+            posts: {
+              where: { parentId: { equals: null } },
+              select: {
+                id: true,
+                content: true,
+                createAt: true,
+                threadId: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    isAnonymous: true,
+                  },
+                },
+
+                tags: {
+                  select: {
+                    name: true,
+                  },
+                },
+                replies: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+
+              orderBy: { createAt: "asc" },
+            },
+
             tags: {
               select: {
                 name: true,
               },
             },
-            replies: {
-              select: {
-                id: true,
-              },
-            },
           },
-
-          orderBy: { createAt: "asc" },
-        },
-
-        tags: {
-          select: {
-            name: true,
-          },
-        },
+        });
+        return thread;
       },
-    });
+      ['thread', id || 'default'], // Key for the cache, includes the ID
+      {
+        tags: ['thread-' + id, 'threads'], // Tags for revalidation, specific and general
+        revalidate: 3600, // Revalidate every hour
+      }
+    );
+
+    const thread = await getCachedThread(id || 'default'); // Call the cached function with the ID
 
     if (!thread) {
       return { success: false, error: "Not Found", message: "Thread not found." };
@@ -153,6 +181,8 @@ export const createThreadAction = async (
       },
     });
 
+    revalidateTag('threads'); // Revalidate cached threads
+    revalidateTag('thread-' + thread.id); // Revalidate specific thread cache
     return { success: true, data: thread };
   } catch (e) {
     console.error("Error creating thread:", e);
@@ -208,6 +238,8 @@ export const updateThreadAction = async (
       },
     });
 
+    revalidateTag('threads'); // Revalidate cached threads
+    revalidateTag('thread-' + id); // Revalidate specific thread cache
     return { success: true, data: thread };
   } catch (e) {
     console.error("Error updating thread:", e);
@@ -244,6 +276,8 @@ export const updateThreadPinnedStatusAction = async (
       where: { id: threadId },
       data: { isPinned: isPinned },
     });
+    revalidateTag('threads'); // Revalidate cached threads
+    revalidateTag('thread-' + threadId); // Revalidate specific thread cache
     return { success: true, data: true };
   } catch (e) {
     console.error("Error updating thread pinned status:", e);

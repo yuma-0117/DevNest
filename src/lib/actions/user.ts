@@ -6,6 +6,64 @@ import { prisma } from "@/lib/db/prisma";
 import { ActionResponse } from "@/types/common";
 import { UserWithThreadsAndPosts } from "@/types/user";
 import { auth } from "@/lib/auth";
+import { unstable_cache, revalidateTag } from 'next/cache';
+import { Prisma } from "@prisma/client"; // Import Prisma
+
+const userQuery = {
+  include: {
+    threads: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        createAt: true,
+        isPinned: true,
+        user: {
+          select: {
+            name: true,
+            image: true,
+            id: true,
+            isAnonymous: true,
+          },
+        },
+        tags: {
+          select: {
+            name: true,
+          },
+        },
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
+      },
+    },
+
+    posts: {
+      select: {
+        id: true,
+        content: true,
+        createAt: true,
+        threadId: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            isAnonymous: true,
+          },
+        },
+        thread: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    },
+  },
+};
+
+type UserQueryResult = Prisma.UserGetPayload<typeof userQuery>;
 
 export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<UserWithThreadsAndPosts>> => {
   if (!id) {
@@ -13,65 +71,23 @@ export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<U
   }
 
   try {
-    const user = await prisma.user.findFirst({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        isAnonymous: true, // Include new field
+    const getCachedUser = unstable_cache(
+      async (userId: string) => {
+        const user = await prisma.user.findFirst({
+          where: { id: userId },
+          ...userQuery, // Spread the query object
+        }) as UserQueryResult; // Cast the result
 
-        threads: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            createAt: true,
-            isPinned: true,
-            user: {
-              select: {
-                name: true,
-                image: true,
-                isAnonymous: true, // Include new field
-              },
-            },
-            tags: {
-              select: {
-                name: true,
-              },
-            },
-            _count: {
-              select: {
-                posts: true,
-              },
-            },
-          },
-        },
-
-        posts: {
-          select: {
-            id: true,
-            content: true,
-            createAt: true,
-            threadId: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-                isAnonymous: true,
-              },
-            },
-            thread: {
-              select: {
-                title: true,
-              },
-            },
-          },
-        },
+        return user;
       },
-    });
+      ['user', id || 'default'], // Key for the cache, includes the ID
+      {
+        tags: ['user-' + id], // Tag for revalidation
+        revalidate: 3600, // Revalidate every hour
+      }
+    );
+
+    const user = await getCachedUser(id || 'default'); // Call the cached function with the ID
 
     if (!user) {
       return { success: false, error: "Not Found", message: "User not found." };
@@ -83,6 +99,7 @@ export const fetchUserByIdAction = async (id?: string): Promise<ActionResponse<U
     return { success: false, error: "Failed to fetch user." };
   }
 };
+
 
 export const deleteUserByIdAction = async (id?: string): Promise<ActionResponse<boolean>> => {
   const session = await auth();
@@ -110,6 +127,7 @@ export const deleteUserByIdAction = async (id?: string): Promise<ActionResponse<
     await prisma.user.delete({
       where: { id },
     });
+    revalidateTag('user-' + id); // Revalidate specific user cache
     return { success: true, data: true };
   } catch (e) {
     console.error("Error deleting user by ID:", e);
@@ -137,6 +155,7 @@ export const updateUserAnonymousStatusAction = async (
       where: { id: userId },
       data: { isAnonymous: isAnonymous },
     });
+    revalidateTag('user-' + userId); // Revalidate specific user cache
     return { success: true, data: true };
   } catch (e) {
     console.error("Error updating user anonymous status:", e);

@@ -23,8 +23,8 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  posts  Post[]
-  Thread Thread[]
+  threads Thread[] @relation("UserThreads")
+  posts   Post[]   @relation("UserPosts")
 
   @@index([createdAt])
 }
@@ -92,7 +92,7 @@ model Thread {
   isPinned    Boolean  @default(false) // New field for pinning threads
 
   userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation("UserThreads", fields: [userId], references: [id], onDelete: Cascade)
   posts  Post[]
   tags   Tag[]
 
@@ -106,7 +106,7 @@ model Post {
   createAt DateTime @default(now())
 
   userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
 
   threadId String @map("thread_id")
   thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
