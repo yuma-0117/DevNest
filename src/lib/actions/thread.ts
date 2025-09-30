@@ -284,3 +284,51 @@ export const updateThreadPinnedStatusAction = async (
     return { success: false, error: "Failed to update thread pinned status." };
   }
 };
+
+export const deleteThreadAction = async (
+  threadId: string
+): Promise<ActionResponse<boolean>> => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      message: "User not authenticated.",
+    };
+  }
+
+  try {
+    const thread = await prisma.thread.findUnique({
+      where: { id: threadId },
+      select: { userId: true },
+    });
+
+    if (!thread) {
+      return {
+        success: false,
+        error: "Not Found",
+        message: "Thread not found.",
+      };
+    }
+
+    if (thread.userId !== session.user.id) {
+      return {
+        success: false,
+        error: "Forbidden",
+        message: "User not authorized to delete this thread.",
+      };
+    }
+
+    await prisma.thread.delete({
+      where: { id: threadId },
+    });
+
+    revalidateTag("threads");
+    revalidateTag(`thread-${threadId}`);
+
+    return { success: true, data: true };
+  } catch (e) {
+    console.error("Error deleting thread:", e);
+    return { success: false, error: "Failed to delete thread." };
+  }
+};

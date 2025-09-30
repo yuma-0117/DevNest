@@ -14,6 +14,7 @@ import { ThreadHeader } from "./thread/thread-header";
 import { ThreadHeaderSkeleton } from "./thread/thread-header-skeleton";
 import { fetchThreadByIdAction } from "@/lib/actions/thread";
 import { supabase } from "@/lib/db/supabase";
+import { useRouter } from "next/navigation";
 
 export const PageField = ({
   threadId,
@@ -23,6 +24,8 @@ export const PageField = ({
   session: Session | null;
 }) => {
   const [thread, setThread] = useState<ThreadPageData | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchThreadById = async () => {
@@ -43,26 +46,43 @@ export const PageField = ({
       .channel("post")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "Thread" },
-        async (payload) => {
-          if (payload.eventType === "DELETE") return;
-          await fetchThreadById();
+        {
+          event: "*",
+          schema: "public",
+          table: "Thread",
+          filter: `id=eq.${threadId}`,
+        },
+        (payload) => {
+          if (payload.eventType === "UPDATE") {
+            fetchThreadById();
+          }
+          if (payload.eventType === "DELETE") {
+            setThread(null);
+            router.push("/");
+          }
         }
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "Post" },
-        async (payload) => {
-          if (payload.eventType === "DELETE") return;
-          await fetchThreadById();
+        {
+          event: "*",
+          schema: "public",
+          table: "Post",
+          filter: `thread_id=eq.${threadId}`,
+        },
+        () => {
+          fetchThreadById();
         }
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "Tag" },
-        async (payload) => {
-          if (payload.eventType === "DELETE") return;
-          await fetchThreadById();
+        {
+          event: "*",
+          schema: "public",
+          table: "Tag",
+        },
+        () => {
+          fetchThreadById();
         }
       )
       .subscribe();
@@ -70,7 +90,7 @@ export const PageField = ({
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [threadId]);
+  }, [router, threadId]);
 
   if (!thread) {
     return (

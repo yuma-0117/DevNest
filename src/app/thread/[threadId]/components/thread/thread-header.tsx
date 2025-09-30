@@ -10,6 +10,7 @@ import { ThreadPageData } from "@/types/thread";
 import { formatDistanceToNow } from "@/lib/utils";
 
 import { EditIcon } from "@/components/icons/edit-icon";
+import { ThreadDeleteButton } from "./thread-delete-button";
 
 export const ThreadHeader = ({
   thread,
@@ -36,7 +37,7 @@ export const ThreadHeader = ({
         {/* Link to user profile, but only if not anonymous */}
         {thread.user.isAnonymous ? (
           <Avatar>
-            <AvatarImage src={""} alt={displayName ?? ""} /> {/* src is empty */}
+            <AvatarImage src={null} alt={displayName ?? ""} />
             <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
           </Avatar>
         ) : (
@@ -83,6 +84,7 @@ export const ThreadHeader = ({
               Edit Thread
             </Button>
           </Link>
+          <ThreadDeleteButton threadId={thread.id} />
         </div>
       )}
     </header>

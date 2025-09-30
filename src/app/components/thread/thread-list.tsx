@@ -14,7 +14,8 @@ import { supabase } from "@/lib/db/supabase";
 // Constants for Realtime limits
 const REALTIME_CONNECTION_LIMIT = 200;
 const REALTIME_THRESHOLD_PERCENTAGE = 0.8; // 80%
-const REALTIME_WARNING_THRESHOLD = REALTIME_CONNECTION_LIMIT * REALTIME_THRESHOLD_PERCENTAGE;
+const REALTIME_WARNING_THRESHOLD =
+  REALTIME_CONNECTION_LIMIT * REALTIME_THRESHOLD_PERCENTAGE;
 const METRICS_POLLING_INTERVAL = 30 * 1000; // Poll every 30 seconds
 
 export const ThreadList = () => {
@@ -42,17 +43,15 @@ export const ThreadList = () => {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "Thread" },
-        async (payload) => {
-          if (payload.eventType === "DELETE") return;
-          await fetchAllThreads();
+        () => {
+          fetchAllThreads();
         }
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "Tag" },
-        async (payload) => {
-          if (payload.eventType === "DELETE") return;
-          await fetchAllThreads();
+        () => {
+          fetchAllThreads();
         }
       )
       .subscribe();
@@ -80,20 +79,26 @@ export const ThreadList = () => {
 
     // Fetch immediately and then set up polling
     fetchRealtimeMetrics();
-    const intervalId = setInterval(fetchRealtimeMetrics, METRICS_POLLING_INTERVAL);
+    const intervalId = setInterval(
+      fetchRealtimeMetrics,
+      METRICS_POLLING_INTERVAL
+    );
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
-  const pinnedThreads = threads.filter(thread => thread.isPinned);
-  const unpinnedThreads = threads.filter(thread => !thread.isPinned);
+  const pinnedThreads = threads.filter((thread) => thread.isPinned);
+  const unpinnedThreads = threads.filter((thread) => !thread.isPinned);
 
   return (
     <>
       {showRealtimeWarning && (
         <div className="mb-4 p-3 rounded-md bg-yellow-100 border border-yellow-400 text-yellow-800">
           <h4 className="font-bold">Realtime Usage Warning</h4>
-          <p>Supabase Realtime connections are approaching the free tier limit. Realtime updates may become unreliable.</p>
+          <p>
+            Supabase Realtime connections are approaching the free tier limit.
+            Realtime updates may become unreliable.
+          </p>
         </div>
       )}
 
@@ -114,7 +119,11 @@ export const ThreadList = () => {
               <h3 className="text-xl font-bold mb-3">Pinned Threads</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pinnedThreads.map((thread) => (
-                  <ThreadCard key={thread.id} thread={thread} isPinnedCard={true} />
+                  <ThreadCard
+                    key={thread.id}
+                    thread={thread}
+                    isPinnedCard={true}
+                  />
                 ))}
               </div>
             </div>
@@ -122,7 +131,9 @@ export const ThreadList = () => {
 
           {unpinnedThreads.length > 0 && (
             <div>
-              {pinnedThreads.length > 0 && <h3 className="text-xl font-bold mb-3">All Threads</h3>}
+              {pinnedThreads.length > 0 && (
+                <h3 className="text-xl font-bold mb-3">All Threads</h3>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {unpinnedThreads.map((thread) => (
                   <ThreadCard key={thread.id} thread={thread} />
