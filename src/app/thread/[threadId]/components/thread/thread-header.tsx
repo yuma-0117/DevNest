@@ -37,7 +37,7 @@ export const ThreadHeader = ({
         {/* Link to user profile, but only if not anonymous */}
         {thread.user.isAnonymous ? (
           <Avatar>
-            <AvatarImage src={null} alt={displayName ?? ""} />
+            <AvatarImage src={undefined} alt={displayName ?? ""} />
             <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
           </Avatar>
         ) : (
