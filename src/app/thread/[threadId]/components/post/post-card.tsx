@@ -1,6 +1,6 @@
 import { Session } from "next-auth";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -20,6 +20,7 @@ import { ThreadPageData } from "@/types/thread";
 import { EditIcon } from "@/components/icons/edit-icon";
 import { ReplyIcon } from "@/components/icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
+import { supabase } from "@/lib/db/supabase";
 
 type Post = ThreadPageData["posts"][0];
 
@@ -38,7 +39,7 @@ export const PostCard = ({
   const displayName = post.user.isAnonymous ? "anonymous" : post.user.name;
   // No need for displayImage, AvatarFallback will handle it
 
-  const fetchReplies = async () => {
+  const fetchReplies = useCallback(async () => {
     post.replies.map(async (reply) => {
       const response = await fetchPostByIdAction(reply.id);
       setReplies((prevReplies) => {
@@ -50,7 +51,29 @@ export const PostCard = ({
         }
       });
     });
-  };
+  }, [post.replies]);
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel("reply")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "Post",
+          filter: `thread_id=eq.${post.threadId}`,
+        },
+        () => {
+          window.location.reload();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [post.id, post.threadId, fetchReplies, replies.length]);
 
   return (
     <div>
@@ -61,8 +84,11 @@ export const PostCard = ({
               {/* Link to user profile, but only if not anonymous */}
               {post.user.isAnonymous ? (
                 <Avatar>
-                  <AvatarImage src={""} alt={displayName ?? ""} /> {/* src is empty */}
-                  <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
+                  <AvatarImage src={""} alt={displayName ?? ""} />{" "}
+                  {/* src is empty */}
+                  <AvatarFallback>
+                    {displayName?.charAt(0) ?? "A"}
+                  </AvatarFallback>
                 </Avatar>
               ) : (
                 <Link href={`/user/${post.user.id}`}>
@@ -71,7 +97,9 @@ export const PostCard = ({
                       src={post.user.image ?? ""}
                       alt={displayName ?? ""}
                     />
-                    <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
+                    <AvatarFallback>
+                      {displayName?.charAt(0) ?? "A"}
+                    </AvatarFallback>
                   </Avatar>
                 </Link>
               )}
@@ -96,7 +124,10 @@ export const PostCard = ({
               {isAuthor && (
                 <div className="flex gap-2">
                   <Link href={`/thread/${post.threadId}/post/${post.id}/edit`}>
-                    <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
+                    <Button
+                      variant="outline"
+                      className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80"
+                    >
                       <EditIcon className="size-4 sm:mr-2" />
                       <span className="hidden sm:inline">Edit Post</span>
                     </Button>
@@ -106,7 +137,10 @@ export const PostCard = ({
               )}
               <div>
                 <Link href={`/thread/${post.threadId}/post/${post.id}/reply`}>
-                  <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
+                  <Button
+                    variant="outline"
+                    className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80"
+                  >
                     <ReplyIcon className="size-4 sm:mr-2" />
                     <span className="hidden sm:inline">Reply</span>
                   </Button>
@@ -138,7 +172,7 @@ export const PostCard = ({
         </Button>
       )}
       {replies.length > 0 && (
-        <div className="scale-95">
+        <div className="flex flex-col gap-4 mt-4 scale-95">
           {replies.map((reply) => (
             <PostCard key={reply.id} post={reply} user={user} />
           ))}
