@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const CreateThreadLoading = () => {
+const EditThreadLoading = () => {
   return (
     <div className="container mx-auto py-8 flex justify-center">
       <Card className="w-full max-w-2xl">
@@ -37,4 +37,4 @@ const CreateThreadLoading = () => {
   );
 };
 
-export default CreateThreadLoading;
+export default EditThreadLoading;

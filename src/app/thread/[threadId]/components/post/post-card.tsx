@@ -2,7 +2,8 @@
 
 import { Session } from "next-auth";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { memo, useCallback, useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -23,8 +24,17 @@ import { PostWithUserAndTagsAndReplies } from "@/types/post";
 import { EditIcon } from "@/components/icons/edit-icon";
 import { ReplyIcon } from "@/components/icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
+import { PostCardSkeleton } from "./post-card-skeleton";
 
-export const PostCard = ({
+// Dynamically import the PostCard for replies to code-split the bundle.
+const DynamicPostCard = dynamic(
+  () => import("./post-card").then((mod) => mod.PostCard),
+  {
+    loading: () => <PostCardSkeleton />,
+  }
+);
+
+const PostCardComponent = ({
   post,
   user,
 }: {
@@ -176,10 +186,12 @@ export const PostCard = ({
       {showReplies && (
         <div className="flex flex-col gap-4 mt-4 pl-4 border-l-2 border-primary/20">
           {replies.map((reply) => (
-            <PostCard key={reply.id} post={reply} user={user} />
+            <DynamicPostCard key={reply.id} post={reply} user={user} />
           ))}
         </div>
       )}
     </div>
   );
 };
+
+export const PostCard = memo(PostCardComponent);

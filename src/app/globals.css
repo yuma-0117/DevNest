@@ -43,7 +43,6 @@
     oklch(0.85 0.075 200) 0%,
     oklch(0.85 0.075 330) 100%
   );
-  --font-sans: Inter;
   --font-serif: serif;
   --font-mono: monospace;
   --radius: 0.75rem;
@@ -102,7 +101,7 @@
     oklch(0.25 0.15 200) 0%,
     oklch(0.25 0.15 330) 100%
   );
-  --font-sans: Inter;
+
   --font-serif: serif;
   --font-mono: monospace;
   --radius: 0.75rem;

@@ -12,7 +12,7 @@ import { ThemeProvider } from "./components/theme/theme-provider";
 
 const roboto = Roboto({
   subsets: ["latin"],
-  variable: "--font-roboto",
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
