@@ -188,7 +188,7 @@ body {
 }
 
 .liquid-glass-card {
-  background: oklch(from var(--card) calc(l + 0.02) c h / 0.4);
+  background: oklch(from var(--card) calc(l + 0.04) c h / 0.4);
   border: 1px solid oklch(from var(--border) l c h / 0.3);
   box-shadow: var(--shadow-lg);
   border-radius: var(--radius-xl);
@@ -197,5 +197,5 @@ body {
 }
 
 .dark .liquid-glass-card {
-  background: oklch(from var(--card) calc(l - 0.02) c h / 0.4);
+  background: oklch(from var(--card) calc(l - 0.04) c h / 0.4);
 }
