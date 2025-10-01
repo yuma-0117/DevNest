@@ -2,7 +2,13 @@
 
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const SignInPage = () => {
   return (
@@ -15,10 +21,18 @@ const SignInPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <Button variant="outline" className="w-full" onClick={() => signIn("github", { callbackUrl: "/" })}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => signIn("github", { callbackUrl: "/" })}
+          >
             Sign in with GitHub
           </Button>
-          <Button variant="outline" className="w-full" onClick={() => signIn("google", { callbackUrl: "/" })}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => signIn("google", { callbackUrl: "/" })}
+          >
             Sign in with Google
           </Button>
         </CardContent>
