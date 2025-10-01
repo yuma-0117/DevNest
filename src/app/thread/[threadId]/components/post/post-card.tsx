@@ -1,3 +1,5 @@
+"use client";
+
 import { Session } from "next-auth";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -13,67 +15,69 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { fetchPostByIdAction } from "@/lib/actions/post";
+import { fetchPostsByIdsAction } from "@/lib/actions/post";
+import { supabase } from "@/lib/db/supabase";
 import { formatDistanceToNow } from "@/lib/utils";
-import { ThreadPageData } from "@/types/thread";
+import { PostWithUserAndTagsAndReplies } from "@/types/post";
 
 import { EditIcon } from "@/components/icons/edit-icon";
 import { ReplyIcon } from "@/components/icons/reply-icon";
 import { PostDeleteButton } from "./post-delete-button";
-import { supabase } from "@/lib/db/supabase";
-
-type Post = ThreadPageData["posts"][0];
 
 export const PostCard = ({
   post,
   user,
 }: {
-  post: Post;
+  post: PostWithUserAndTagsAndReplies;
   user: Session["user"] | undefined;
 }) => {
-  const [replies, setReplies] = useState<Post[]>([]);
+  const [replies, setReplies] = useState<PostWithUserAndTagsAndReplies[]>([]);
+  const [showReplies, setShowReplies] = useState(false);
 
   const isAuthor = post.user.id === user?.id;
-
-  // Determine display name based on isAnonymous status
   const displayName = post.user.isAnonymous ? "anonymous" : post.user.name;
-  // No need for displayImage, AvatarFallback will handle it
 
   const fetchReplies = useCallback(async () => {
-    post.replies.map(async (reply) => {
-      const response = await fetchPostByIdAction(reply.id);
-      setReplies((prevReplies) => {
-        if (response.success) {
-          return [...prevReplies, response.data];
-        } else {
-          console.error("Failed to fetch reply:", response.error);
-          return prevReplies;
-        }
-      });
-    });
+    if (post.replies.length === 0) return;
+    const replyIds = post.replies.map((reply) => reply.id);
+    const response = await fetchPostsByIdsAction(replyIds);
+    if (response.success) {
+      setReplies(response.data);
+    } else {
+      console.error("Failed to fetch replies:", response.error);
+    }
   }, [post.replies]);
 
   useEffect(() => {
-    const subscription = supabase
-      .channel("reply")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "Post",
-          filter: `thread_id=eq.${post.threadId}`,
-        },
-        () => {
-          window.location.reload();
-        }
-      )
-      .subscribe();
+    // Only subscribe if there are potential replies to listen to
+    if (post.replies.length > 0) {
+      const channel = supabase.channel(`post-card-${post.id}`);
+      channel
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "Post",
+            filter: `parent_id=eq.${post.id}`,
+          },
+          () => {
+            // On any change to replies, refetch them
+            fetchReplies();
+          }
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, [post.id, post.threadId, fetchReplies, replies.length]);
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [post.id, post.replies.length, fetchReplies]);
+
+  const handleShowReplies = () => {
+    fetchReplies();
+    setShowReplies(true);
+  };
 
   return (
     <div>
@@ -81,11 +85,9 @@ export const PostCard = ({
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center space-x-4">
-              {/* Link to user profile, but only if not anonymous */}
               {post.user.isAnonymous ? (
                 <Avatar>
-                  <AvatarImage src={""} alt={displayName ?? ""} />{" "}
-                  {/* src is empty */}
+                  <AvatarImage src={""} alt={displayName ?? ""} />
                   <AvatarFallback>
                     {displayName?.charAt(0) ?? "A"}
                   </AvatarFallback>
@@ -166,13 +168,13 @@ export const PostCard = ({
           </CardFooter>
         )}
       </Card>
-      {post.replies && post.replies.length > 0 && replies.length === 0 && (
-        <Button variant="ghost" onClick={fetchReplies}>
-          Show replies
+      {post.replies && post.replies.length > 0 && !showReplies && (
+        <Button variant="ghost" onClick={handleShowReplies}>
+          Show replies ({post.replies.length})
         </Button>
       )}
-      {replies.length > 0 && (
-        <div className="flex flex-col gap-4 mt-4 scale-95">
+      {showReplies && (
+        <div className="flex flex-col gap-4 mt-4 pl-4 border-l-2 border-primary/20">
           {replies.map((reply) => (
             <PostCard key={reply.id} post={reply} user={user} />
           ))}

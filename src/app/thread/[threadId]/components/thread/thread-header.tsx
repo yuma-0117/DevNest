@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ThreadPageData } from "@/types/thread";
+import { ThreadHeaderData } from "@/types/thread";
 import { formatDistanceToNow } from "@/lib/utils";
 
 import { EditIcon } from "@/components/icons/edit-icon";
@@ -16,7 +16,7 @@ export const ThreadHeader = ({
   thread,
   user,
 }: {
-  thread: ThreadPageData;
+  thread: ThreadHeaderData;
   user: Session["user"] | undefined;
 }) => {
   // Determine display name based on isAnonymous status

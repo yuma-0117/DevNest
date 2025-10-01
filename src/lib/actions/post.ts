@@ -81,6 +81,7 @@ export const createPostAction = async (
       },
     });
 
+    revalidateTag('posts-for-thread-' + threadId); // Revalidate posts list for the thread
     revalidateTag('thread-' + threadId); // Revalidate specific thread cache
     revalidateTag('threads'); // Revalidate all threads cache
     revalidateTag('user-' + session.user.id); // Revalidate specific user cache
@@ -134,6 +135,7 @@ export const updatePostAction = async (
       },
     });
 
+    revalidateTag('posts-for-thread-' + postToUpdate.threadId); // Revalidate posts list for the thread
     revalidateTag('thread-' + postToUpdate.threadId); // Revalidate specific thread cache
     revalidateTag('threads'); // Revalidate all threads cache
     revalidateTag('user-' + postToUpdate.userId); // Revalidate specific user cache
@@ -172,6 +174,7 @@ export const deletePostAction = async (id?: string): Promise<ActionResponse<bool
       where: { id },
     });
 
+    revalidateTag('posts-for-thread-' + postToDelete.threadId); // Revalidate posts list for the thread
     revalidateTag('thread-' + postToDelete.threadId); // Revalidate specific thread cache
     revalidateTag('threads'); // Revalidate all threads cache
     revalidateTag('user-' + postToDelete.userId); // Revalidate specific user cache
@@ -179,5 +182,36 @@ export const deletePostAction = async (id?: string): Promise<ActionResponse<bool
   } catch (e) {
     console.error("Error deleting post:", e);
     return { success: false, error: "Failed to delete post." };
+  }
+};
+
+export const fetchPostsByIdsAction = async (ids: string[]): Promise<ActionResponse<PostWithUserAndTagsAndReplies[]>> => {
+  if (!ids || ids.length === 0) {
+    return { success: true, data: [] };
+  }
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select: {
+        id: true,
+        content: true,
+        createAt: true,
+        threadId: true,
+        user: { select: { id: true, name: true, image: true, isAnonymous: true } },
+        tags: { select: { name: true } },
+        replies: { select: { id: true } },
+      },
+      orderBy: { createAt: "asc" },
+    });
+
+    return { success: true, data: posts };
+  } catch (e) {
+    console.error("Error fetching posts by IDs:", e);
+    return { success: false, error: "Failed to fetch posts." };
   }
 };

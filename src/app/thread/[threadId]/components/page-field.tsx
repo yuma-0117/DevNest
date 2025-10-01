@@ -2,19 +2,23 @@
 
 import { Session } from "next-auth";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { Button } from "@/components/ui/button";
-import { ThreadPageData } from "@/types/thread";
+import {
+  fetchThreadHeaderAction,
+  fetchPostsForThreadAction,
+} from "@/lib/actions/thread";
+import { supabase } from "@/lib/db/supabase";
+import { PostWithUserAndTagsAndReplies } from "@/types/post";
+import { ThreadHeaderData } from "@/types/thread";
+import { useRouter } from "next/navigation";
 
 import { PostList } from "./post/post-list";
 import { PostListSkeleton } from "./post/post-list-skeleton";
 import { ThreadHeader } from "./thread/thread-header";
 import { ThreadHeaderSkeleton } from "./thread/thread-header-skeleton";
-import { fetchThreadByIdAction } from "@/lib/actions/thread";
-import { supabase } from "@/lib/db/supabase";
-import { useRouter } from "next/navigation";
 
 export const PageField = ({
   threadId,
@@ -23,27 +27,40 @@ export const PageField = ({
   threadId: string;
   session: Session | null;
 }) => {
-  const [thread, setThread] = useState<ThreadPageData | null>(null);
-
+  const [threadHeader, setThreadHeader] = useState<ThreadHeaderData | null>(
+    null
+  );
+  const [posts, setPosts] = useState<PostWithUserAndTagsAndReplies[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchThreadById = async () => {
-      const response = await fetchThreadByIdAction(threadId);
-      if (response.success) {
-        setThread(response.data);
-      } else {
-        console.error("Failed to fetch thread by ID:", response.error);
-        setThread(null);
-      }
-    };
+  const fetchThreadHeader = useCallback(async () => {
+    const response = await fetchThreadHeaderAction(threadId);
+    if (response.success) {
+      setThreadHeader(response.data);
+    } else {
+      console.error("Failed to fetch thread header:", response.error);
+      setThreadHeader(null);
+    }
+  }, [threadId]);
 
+  const fetchPosts = useCallback(async () => {
+    const response = await fetchPostsForThreadAction(threadId);
+    if (response.success) {
+      setPosts(response.data);
+    } else {
+      console.error("Failed to fetch posts:", response.error);
+    }
+  }, [threadId]);
+
+  useEffect(() => {
     if (threadId) {
-      fetchThreadById();
+      fetchThreadHeader();
+      fetchPosts();
     }
 
-    const subscription = supabase
-      .channel("post")
+    const channel = supabase.channel(`thread-page-${threadId}`);
+
+    channel
       .on(
         "postgres_changes",
         {
@@ -54,10 +71,10 @@ export const PageField = ({
         },
         (payload) => {
           if (payload.eventType === "UPDATE") {
-            fetchThreadById();
+            fetchThreadHeader();
           }
           if (payload.eventType === "DELETE") {
-            setThread(null);
+            setThreadHeader(null);
             router.push("/");
           }
         }
@@ -71,7 +88,7 @@ export const PageField = ({
           filter: `thread_id=eq.${threadId}`,
         },
         () => {
-          fetchThreadById();
+          fetchPosts();
         }
       )
       .on(
@@ -82,17 +99,17 @@ export const PageField = ({
           table: "Tag",
         },
         () => {
-          fetchThreadById();
+          fetchThreadHeader();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(subscription);
+      supabase.removeChannel(channel);
     };
-  }, [router, threadId]);
+  }, [threadId, fetchThreadHeader, fetchPosts, router]);
 
-  if (!thread) {
+  if (!threadHeader) {
     return (
       <div className="container mx-auto py-8">
         <ThreadHeaderSkeleton />
@@ -103,8 +120,8 @@ export const PageField = ({
 
   return (
     <div className="container mx-auto py-8">
-      <ThreadHeader thread={thread} user={session?.user} />
-      <PostList posts={thread.posts} user={session?.user} />
+      <ThreadHeader thread={threadHeader} user={session?.user} />
+      <PostList posts={posts} user={session?.user} />
       <Link
         href={`/thread/${threadId}/post/create`}
         className="fixed bottom-3 right-3"

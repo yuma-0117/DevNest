@@ -5,6 +5,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { ActionResponse } from "@/types/common";
 import { ThreadWithUserAndTags, ThreadPageData } from "@/types/thread";
+import { PostWithUserAndTagsAndReplies } from "@/types/post";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 
@@ -330,5 +331,133 @@ export const deleteThreadAction = async (
   } catch (e) {
     console.error("Error deleting thread:", e);
     return { success: false, error: "Failed to delete thread." };
+  }
+};
+
+export const fetchThreadHeaderAction = async (id?: string): Promise<ActionResponse<Prisma.ThreadGetPayload<{
+  select: {
+    id: true;
+    title: true;
+    description: true;
+    createAt: true;
+    isPinned: true;
+    user: {
+      select: {
+        id: true;
+        name: true;
+        image: true;
+        isAnonymous: true;
+      };
+    };
+    tags: {
+      select: {
+        name: true;
+      };
+    };
+  };
+}>>> => {
+  if (!id) {
+    return { success: false, error: "Thread ID is required." };
+  }
+
+  try {
+    const getCachedThreadHeader = unstable_cache(
+      async (threadId: string) => {
+        const thread = await prisma.thread.findUnique({
+          where: { id: threadId },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            createAt: true,
+            isPinned: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                isAnonymous: true,
+              },
+            },
+            tags: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        });
+        return thread;
+      },
+      ['thread-header', id || 'default'],
+      {
+        tags: ['thread-header-' + id, 'threads'],
+        revalidate: 3600,
+      }
+    );
+
+    const thread = await getCachedThreadHeader(id || 'default');
+
+    if (!thread) {
+      return { success: false, error: "Not Found", message: "Thread not found." };
+    }
+
+    return { success: true, data: thread };
+  } catch (e) {
+    console.error("Error fetching thread header by ID:", e);
+    return { success: false, error: "Failed to fetch thread header." };
+  }
+};
+
+export const fetchPostsForThreadAction = async (id?: string): Promise<ActionResponse<PostWithUserAndTagsAndReplies[]>> => {
+  if (!id) {
+    return { success: false, error: "Thread ID is required." };
+  }
+
+  try {
+    const getCachedPosts = unstable_cache(
+      async (threadId: string) => {
+        const posts = await prisma.post.findMany({
+          where: { threadId: threadId, parentId: { equals: null } },
+          select: {
+            id: true,
+            content: true,
+            createAt: true,
+            threadId: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                isAnonymous: true,
+              },
+            },
+            tags: {
+              select: {
+                name: true,
+              },
+            },
+            replies: {
+              select: {
+                id: true,
+              },
+            },
+          },
+          orderBy: { createAt: "asc" },
+        });
+        return posts;
+      },
+      ['posts-for-thread', id || 'default'],
+      {
+        tags: ['posts-for-thread-' + id, 'posts'],
+        revalidate: 3600,
+      }
+    );
+
+    const posts = await getCachedPosts(id || 'default');
+
+    return { success: true, data: posts };
+  } catch (e) {
+    console.error("Error fetching posts for thread:", e);
+    return { success: false, error: "Failed to fetch posts for thread." };
   }
 };

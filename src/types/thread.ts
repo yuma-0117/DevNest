@@ -78,3 +78,26 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
     };
   };
 }>;
+
+export type ThreadHeaderData = Prisma.ThreadGetPayload<{
+  select: {
+    id: true;
+    title: true;
+    description: true;
+    createAt: true;
+    isPinned: true;
+    user: {
+      select: {
+        id: true;
+        name: true;
+        image: true;
+        isAnonymous: true;
+      };
+    };
+    tags: {
+      select: {
+        name: true;
+      };
+    };
+  };
+}>;
