@@ -15,10 +15,10 @@ const SignInPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <Button variant="outline" className="w-full" onClick={() => signIn("github")}>
+          <Button variant="outline" className="w-full" onClick={() => signIn("github", { callbackUrl: "/" })}
             Sign in with GitHub
           </Button>
-          <Button variant="outline" className="w-full" onClick={() => signIn("google")}>
+          <Button variant="outline" className="w-full" onClick={() => signIn("google", { callbackUrl: "/" })}
             Sign in with Google
           </Button>
         </CardContent>
