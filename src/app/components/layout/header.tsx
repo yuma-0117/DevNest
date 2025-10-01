@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import SignIn from "../auth/sign-in-form";
+
 import SignOut from "../auth/sign-out-form";
 import { ThemeToggle } from "../theme/theme-trigger";
 import Link from "next/link";
@@ -65,7 +66,9 @@ export const Header = ({ session }: { session: Session | null }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <SignIn />
+            <Link href="/signin">
+              <Button variant="outline">Sign in</Button>
+            </Link>
           )}
         </div>
       </Suspense>
