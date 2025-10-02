@@ -15,6 +15,9 @@ import { unstable_cache, revalidateTag } from 'next/cache';
 
 export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWithUserAndTags[]>> => {
   try {
+    // unstable_cache: Next.js 15's experimental cache API.
+    // TODO: Consider migrating to stable caching APIs when available.
+    // Current revalidation interval is set to 1 hour (3600 seconds).
     const getCachedThreads = unstable_cache(
       async () => {
         const threads = await prisma.thread.findMany({
@@ -74,6 +77,9 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
   }
 
   try {
+    // unstable_cache: Next.js 15's experimental cache API.
+    // TODO: Consider migrating to stable caching APIs when available.
+    // Current revalidation interval is set to 1 hour (3600 seconds).
     const getCachedThread = unstable_cache(
       async (threadId: string) => {
         const thread = await prisma.thread.findUnique({
@@ -361,6 +367,9 @@ export const fetchThreadHeaderAction = async (id?: string): Promise<ActionRespon
   }
 
   try {
+    // unstable_cache: Next.js 15's experimental cache API.
+    // TODO: Consider migrating to stable caching APIs when available.
+    // Current revalidation interval is set to 1 hour (3600 seconds).
     const getCachedThreadHeader = unstable_cache(
       async (threadId: string) => {
         const thread = await prisma.thread.findUnique({
@@ -414,6 +423,9 @@ export const fetchPostsForThreadAction = async (id?: string): Promise<ActionResp
   }
 
   try {
+    // unstable_cache: Next.js 15's experimental cache API.
+    // TODO: Consider migrating to stable caching APIs when available.
+    // Current revalidation interval is set to 1 hour (3600 seconds).
     const getCachedPosts = unstable_cache(
       async (threadId: string) => {
         const posts = await prisma.post.findMany({
