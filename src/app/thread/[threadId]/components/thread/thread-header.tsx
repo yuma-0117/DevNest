@@ -12,7 +12,9 @@ import { formatDistanceToNow } from "@/lib/utils";
 import { EditIcon } from "@/components/icons/edit-icon";
 import { ThreadDeleteButton } from "./thread-delete-button";
 
-export const ThreadHeader = ({
+import { memo } from "react";
+
+const ThreadHeaderComponent = ({
   thread,
   user,
 }: {
@@ -90,3 +92,5 @@ export const ThreadHeader = ({
     </header>
   );
 };
+
+export const ThreadHeader = memo(ThreadHeaderComponent);

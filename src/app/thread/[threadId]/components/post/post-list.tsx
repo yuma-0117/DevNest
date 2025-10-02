@@ -1,10 +1,11 @@
 import { ThreadPageData } from "@/types/thread";
 import { PostCard } from "./post-card";
 import { Session } from "next-auth";
+import { memo } from "react";
 
 type Posts = ThreadPageData["posts"];
 
-export const PostList = ({
+const PostListComponent = ({
   posts,
   user,
 }: {
@@ -37,3 +38,5 @@ export const PostList = ({
     </main>
   );
 };
+
+export const PostList = memo(PostListComponent);
