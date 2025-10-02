@@ -64,7 +64,7 @@ export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWith
     return { success: true, data: threads };
   } catch (e) {
     console.error("Error fetching all threads:", e);
-    return { success: false, error: "Failed to fetch threads." };
+    return { success: false, error: "Failed to fetch threads.", message: "An error occurred while fetching threads." };
   }
 };
 
@@ -150,7 +150,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
     return { success: true, data: thread };
   } catch (e) {
     console.error("Error fetching thread by ID:", e);
-    return { success: false, error: "Failed to fetch thread." };
+    return { success: false, error: "Failed to fetch thread.", message: "An error occurred while fetching the thread." };
   }
 };
 
@@ -187,7 +187,7 @@ export const createThreadAction = async (
     return { success: true, data: thread };
   } catch (e) {
     console.error("Error creating thread:", e);
-    return { success: false, error: "Failed to create thread." };
+    return { success: false, error: "Failed to create thread.", message: "An error occurred while creating the thread." };
   }
 };
 
@@ -244,7 +244,7 @@ export const updateThreadAction = async (
     return { success: true, data: thread };
   } catch (e) {
     console.error("Error updating thread:", e);
-    return { success: false, error: "Failed to update thread." };
+    return { success: false, error: "Failed to update thread.", message: "An error occurred while updating the thread." };
   }
 };
 
@@ -282,7 +282,7 @@ export const updateThreadPinnedStatusAction = async (
     return { success: true, data: true };
   } catch (e) {
     console.error("Error updating thread pinned status:", e);
-    return { success: false, error: "Failed to update thread pinned status." };
+    return { success: false, error: "Failed to update thread pinned status.", message: "An error occurred while updating the thread's pinned status." };
   }
 };
 
@@ -330,7 +330,7 @@ export const deleteThreadAction = async (
     return { success: true, data: true };
   } catch (e) {
     console.error("Error deleting thread:", e);
-    return { success: false, error: "Failed to delete thread." };
+    return { success: false, error: "Failed to delete thread.", message: "An error occurred while deleting the thread." };
   }
 };
 
@@ -404,7 +404,7 @@ export const fetchThreadHeaderAction = async (id?: string): Promise<ActionRespon
     return { success: true, data: thread };
   } catch (e) {
     console.error("Error fetching thread header by ID:", e);
-    return { success: false, error: "Failed to fetch thread header." };
+    return { success: false, error: "Failed to fetch thread header.", message: "An error occurred while fetching the thread header." };
   }
 };
 
@@ -458,6 +458,6 @@ export const fetchPostsForThreadAction = async (id?: string): Promise<ActionResp
     return { success: true, data: posts };
   } catch (e) {
     console.error("Error fetching posts for thread:", e);
-    return { success: false, error: "Failed to fetch posts for thread." };
+    return { success: false, error: "Failed to fetch posts for thread.", message: "An error occurred while fetching posts for the thread." };
   }
 };
