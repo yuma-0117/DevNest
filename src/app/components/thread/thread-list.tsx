@@ -1,7 +1,7 @@
 // src/app/components/thread/thread-list.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { fetchAllThreadsAction } from "@/lib/actions/thread";
 import { getSupabaseRealtimeMetrics } from "@/lib/actions/supabase-metrics"; // New import
@@ -17,26 +17,32 @@ const REALTIME_THRESHOLD_PERCENTAGE = 0.8; // 80%
 const REALTIME_WARNING_THRESHOLD =
   REALTIME_CONNECTION_LIMIT * REALTIME_THRESHOLD_PERCENTAGE;
 const METRICS_POLLING_INTERVAL = 30 * 1000; // Poll every 30 seconds
+const RETRY_CONNECTION_INTERVAL = 5 * 60 * 1000; // Retry every 5 minutes
 
 export const ThreadList = () => {
   const [threads, setThreads] = useState<ThreadWithUserAndTags[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRealtimeWarning, setShowRealtimeWarning] = useState(false); // New state for warning
+  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
+  const [showRetryOption, setShowRetryOption] = useState(false);
+
+  const fetchAllThreads = useCallback(async () => {
+    setLoading(true);
+    const response = await fetchAllThreadsAction();
+    if (response.success) {
+      setThreads(response.data);
+    } else {
+      console.error("Failed to fetch threads:", response.error);
+      setThreads([]);
+    }
+    setLoading(false);
+  }, []);
 
   // Effect for fetching threads and subscribing to real-time updates
   useEffect(() => {
-    const fetchAllThreads = async () => {
-      setLoading(true);
-      const response = await fetchAllThreadsAction();
-      if (response.success) {
-        setThreads(response.data);
-      } else {
-        console.error("Failed to fetch threads:", response.error);
-        setThreads([]);
-      }
-      setLoading(false);
-    };
     fetchAllThreads();
+
+    if (!realtimeEnabled) return; // Realtimeが無効化されている場合は処理しない
 
     const subscription = supabase
       .channel("thread")
@@ -59,7 +65,7 @@ export const ThreadList = () => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, []);
+  }, [realtimeEnabled, fetchAllThreads]); // realtimeEnabledとfetchAllThreadsが変更されたときに再実行
 
   // New useEffect for monitoring Supabase Realtime metrics
   useEffect(() => {
@@ -68,8 +74,13 @@ export const ThreadList = () => {
       if (response.success) {
         if (response.data.activeConnections >= REALTIME_WARNING_THRESHOLD) {
           setShowRealtimeWarning(true);
+          setRealtimeEnabled(false); // Realtimeを無効化
+          setShowRetryOption(true); // 再試行オプションを表示
         } else {
           setShowRealtimeWarning(false);
+          if (!realtimeEnabled) {
+            setRealtimeEnabled(true); // 必要に応じてRealtimeを再有効化
+          }
         }
       } else {
         console.error("Failed to fetch realtime metrics:", response.error);
@@ -85,7 +96,26 @@ export const ThreadList = () => {
     );
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
-  }, []);
+  }, [realtimeEnabled, fetchAllThreads]); // realtimeEnabledとfetchAllThreadsが変更されたときに再実行
+
+  // Effect for retrying connection when showRetryOption is true
+  useEffect(() => {
+    if (!showRetryOption) return;
+
+    const retryInterval = setInterval(() => {
+      // 接続数が閾値以下であればRealtimeを再有効化
+      getSupabaseRealtimeMetrics().then(response => {
+        if (response.success && 
+            response.data.activeConnections < REALTIME_WARNING_THRESHOLD) {
+          setRealtimeEnabled(true);
+          setShowRetryOption(false);
+          clearInterval(retryInterval);
+        }
+      });
+    }, RETRY_CONNECTION_INTERVAL);
+
+    return () => clearInterval(retryInterval);
+  }, [showRetryOption, fetchAllThreads]);
 
   const pinnedThreads = threads.filter((thread) => thread.isPinned);
   const unpinnedThreads = threads.filter((thread) => !thread.isPinned);
@@ -99,6 +129,23 @@ export const ThreadList = () => {
             Supabase Realtime connections are approaching the free tier limit.
             Realtime updates may become unreliable.
           </p>
+          {showRetryOption && (
+            <button 
+              className="mt-2 text-blue-600 hover:underline"
+              onClick={() => {
+                // 手動での再接続を試みる
+                getSupabaseRealtimeMetrics().then(response => {
+                  if (response.success && 
+                      response.data.activeConnections < REALTIME_WARNING_THRESHOLD) {
+                    setRealtimeEnabled(true);
+                    setShowRetryOption(false);
+                  }
+                });
+              }}
+            >
+              Try reconnecting to Realtime
+            </button>
+          )}
         </div>
       )}
 
