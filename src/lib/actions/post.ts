@@ -59,7 +59,14 @@ export const createPostAction = async (
   threadId: string,
   tags: string[],
   parentId?: string
-): Promise<ActionResponse<Prisma.PostGetPayload<{} /* eslint-disable-line @typescript-eslint/no-empty-object-type */>>> => {
+): Promise<ActionResponse<Prisma.PostGetPayload<{
+  include: {
+    user: true;
+    thread: true;
+    tags: true;
+    parent: true;
+  };
+}>>> => {
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized", message: "User not authenticated." };
@@ -79,6 +86,12 @@ export const createPostAction = async (
         },
         parentId,
       },
+      include: {
+        user: true,
+        tags: true,
+        thread: true,
+        parent: true,
+      },
     });
 
     revalidateTag('posts-for-thread-' + threadId); // Revalidate posts list for the thread
@@ -96,7 +109,14 @@ export const updatePostAction = async (
   id: string,
   content: string,
   tags: string[]
-): Promise<ActionResponse<Prisma.PostGetPayload<{} /* eslint-disable-line @typescript-eslint/no-empty-object-type */>>> => {
+): Promise<ActionResponse<Prisma.PostGetPayload<{
+  include: {
+    user: true;
+    thread: true;
+    tags: true;
+    parent: true;
+  };
+}>>> => {
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized", message: "User not authenticated." };
@@ -132,6 +152,12 @@ export const updatePostAction = async (
         tags: {
           set: createdTags.map((tag) => ({ id: tag.id })),
         },
+      },
+      include: {
+        user: true,
+        tags: true,
+        thread: true,
+        parent: true,
       },
     });
 
