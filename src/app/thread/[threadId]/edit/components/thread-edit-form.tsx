@@ -71,7 +71,7 @@ export const ThreadEditForm = ({ allTags, thread }: ThreadEditFormProps) => {
           <TagsField />
           <TagSuggestion allTags={allTags} />
           <div className="flex gap-4">
-            <Button type="submit" disabled={form.formState.isSubmitting}>
+            <Button variant="edit" type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? "Updating..." : "Update Thread"}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.back()}>

@@ -137,8 +137,7 @@ const PostCardComponent = ({
                 <div className="flex gap-2">
                   <Link href={`/thread/${post.threadId}/post/${post.id}/edit`}>
                     <Button
-                      variant="outline"
-                      className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80"
+                      variant="edit"
                     >
                       <EditIcon className="size-4 sm:mr-2" />
                       <span className="hidden sm:inline">Edit Post</span>
@@ -150,8 +149,7 @@ const PostCardComponent = ({
               <div>
                 <Link href={`/thread/${post.threadId}/post/${post.id}/reply`}>
                   <Button
-                    variant="outline"
-                    className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80"
+                    variant="reply"
                   >
                     <ReplyIcon className="size-4 sm:mr-2" />
                     <span className="hidden sm:inline">Reply</span>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 
@@ -19,18 +18,20 @@ import { PostList } from "./post/post-list";
 import { PostListSkeleton } from "./post/post-list-skeleton";
 import { ThreadHeader } from "./thread/thread-header";
 import { ThreadHeaderSkeleton } from "./thread/thread-header-skeleton";
+import { Session } from "next-auth";
 
 export const PageField = ({
   threadId,
+  session,
 }: {
   threadId: string;
+  session: Session | null;
 }) => {
   const [threadHeader, setThreadHeader] = useState<ThreadHeaderData | null>(
     null
   );
   const [posts, setPosts] = useState<PostWithUserAndTagsAndReplies[]>([]);
   const router = useRouter();
-  const { data: session } = useSession(); // useSessionからセッション情報を取得
 
   const fetchThreadHeader = useCallback(async () => {
     const response = await fetchThreadHeaderAction(threadId);

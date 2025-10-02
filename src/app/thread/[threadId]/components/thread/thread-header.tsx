@@ -81,7 +81,7 @@ const ThreadHeaderComponent = ({
       {user?.id === thread.user.id && (
         <div className="mt-3 flex gap-2">
           <Link href={`/thread/${thread.id}/edit`}>
-            <Button variant="outline" className="bg-secondary/70 backdrop-blur-lg border border-border/50 hover:bg-secondary/80">
+            <Button variant="edit">
               <EditIcon className="mr-2 size-4" />
               Edit Thread
             </Button>
