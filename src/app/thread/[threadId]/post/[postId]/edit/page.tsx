@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPostByIdAction } from "@/lib/actions/post";
 import { notFound } from "next/navigation";
 import { PostEditForm } from "./components/post-edit-form";
@@ -64,7 +59,6 @@ const EditPostPage = async ({
     console.error("Failed to fetch tags: Data is null.");
     notFound();
   }
-  const allTags = allTagsResponse.data;
 
   const displayName = thread.user.isAnonymous ? "anonymous" : thread.user.name;
 
@@ -82,7 +76,7 @@ const EditPostPage = async ({
               <CardTitle>Edit post</CardTitle>
             </CardHeader>
             <CardContent>
-              <PostEditForm post={post} allTags={allTags} />
+              <PostEditForm post={post} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -109,7 +103,9 @@ const EditPostPage = async ({
                 {thread.user.isAnonymous ? (
                   <Avatar>
                     <AvatarImage src={undefined} alt={displayName ?? ""} />
-                    <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
+                    <AvatarFallback>
+                      {displayName?.charAt(0) ?? "A"}
+                    </AvatarFallback>
                   </Avatar>
                 ) : (
                   <Link href={`/user/${thread.user.id}`}>
@@ -118,7 +114,9 @@ const EditPostPage = async ({
                         src={thread.user.image ?? ""}
                         alt={displayName ?? ""}
                       />
-                      <AvatarFallback>{displayName?.charAt(0) ?? "A"}</AvatarFallback>
+                      <AvatarFallback>
+                        {displayName?.charAt(0) ?? "A"}
+                      </AvatarFallback>
                     </Avatar>
                   </Link>
                 )}
