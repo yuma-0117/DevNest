@@ -9,12 +9,14 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
         description: true;
         createAt: true;
         isPinned: true;
+        userId: true;
         user: {
           select: {
             name: true;
             image: true;
             id: true;
             isAnonymous: true;
+            bio: true;  // Include bio in user selection
           };
         };
         tags: {
@@ -35,12 +37,15 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
         content: true;
         createAt: true;
         threadId: true;
+        userId: true;
+        parentId: true;
         user: {
           select: {
             id: true;
             name: true;
             image: true;
             isAnonymous: true;
+            bio: true;  // Include bio in user selection
           };
         };
         thread: {
