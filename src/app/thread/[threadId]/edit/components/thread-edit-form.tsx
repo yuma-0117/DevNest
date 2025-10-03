@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -38,27 +39,33 @@ export const ThreadEditForm = ({ allTags, thread }: ThreadEditFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (values.tags.charAt(values.tags.length - 1) === ",") {
-      values.tags = values.tags.slice(0, -1);
-    }
+    try {
+      if (values.tags.charAt(values.tags.length - 1) === ",") {
+        values.tags = values.tags.slice(0, -1);
+      }
 
-    const tagsArray = values.tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
+      const tagsArray = values.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    const response = await updateThreadAction(
-      thread.id,
-      values.title,
-      values.description,
-      tagsArray
-    );
+      const response = await updateThreadAction(
+        thread.id,
+        values.title,
+        values.description,
+        tagsArray
+      );
 
-    if (response.success) {
-      router.push(`/thread/${response.data.id}`);
-    } else {
-      console.error("Failed to update thread:", response.error);
-      // Optionally, display an error message to the user
+      if (response.success) {
+        toast.success("Thread updated successfully!");
+        router.push(`/thread/${response.data.id}`);
+        router.refresh();
+      } else {
+        toast.error(response.message || "Failed to update thread.");
+      }
+    } catch (error) {
+      console.error("Failed to update thread:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

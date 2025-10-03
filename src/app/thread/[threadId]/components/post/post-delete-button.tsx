@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -29,13 +30,20 @@ export const PostDeleteButton = ({ postId }: PostDeleteButtonProps) => {
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const result = await deletePostAction(postId);
-    if (result) {
-      router.refresh();
-    } else {
-      alert("Failed to delete the post.");
+    try {
+      const result = await deletePostAction(postId);
+      if (result.success) {
+        toast.success("Post deleted successfully!");
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to delete the post.");
+      }
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
-    setIsDeleting(false);
   };
 
   return (

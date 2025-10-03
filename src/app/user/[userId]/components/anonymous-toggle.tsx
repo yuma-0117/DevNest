@@ -2,10 +2,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-// import { Switch } from "@/components/ui/switch"; // Removed
-// import { Label } from "@/components/ui/label"; // Removed
+import { toast } from "sonner";
+
 import { updateUserAnonymousStatusAction } from "@/lib/actions/user";
-// import { toast } from "sonner"; // Assuming sonner is used for toasts
 
 interface AnonymousToggleProps {
   userId: string;
@@ -21,14 +20,18 @@ export const AnonymousToggle = ({ userId, initialIsAnonymous }: AnonymousToggleP
     setIsAnonymous(checked); // Optimistic update
 
     startTransition(async () => {
-      const response = await updateUserAnonymousStatusAction(userId, checked);
-      if (!response.success) {
-        // toast.error(response.error || "Failed to update anonymous status.");
-        alert(response.error || "Failed to update anonymous status."); // Using alert for now
+      try {
+        const response = await updateUserAnonymousStatusAction(userId, checked);
+        if (response.success) {
+          toast.success("Anonymous status updated successfully!");
+        } else {
+          toast.error(response.message || "Failed to update anonymous status.");
+          setIsAnonymous(initialIsAnonymous); // Revert on error
+        }
+      } catch (error) {
+        console.error("Failed to update anonymous status:", error);
+        toast.error("An unexpected error occurred. Please try again.");
         setIsAnonymous(initialIsAnonymous); // Revert on error
-      } else {
-        // toast.success("Anonymous status updated successfully!");
-        alert("Anonymous status updated successfully!"); // Using alert for now
       }
     });
   };

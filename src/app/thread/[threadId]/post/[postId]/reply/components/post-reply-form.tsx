@@ -7,6 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { z } from "zod";
+import { toast } from "sonner";
 
 import { formSchema } from "@/app/thread/[threadId]/post/create/components/schema";
 import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
@@ -51,22 +52,29 @@ export const PostReplyForm = ({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const tagsArray = values.tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
+    try {
+      const tagsArray = values.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    const createdPost = await createPostAction(
-      values.content,
-      post.threadId,
-      tagsArray,
-      post.id // Pass parentId
-    ); // Pass tags
-    if (createdPost) {
-      router.push(`/thread/${post.threadId}`);
-      router.refresh();
-    } else {
-      alert("Failed to update post.");
+      const response = await createPostAction(
+        values.content,
+        post.threadId,
+        tagsArray,
+        post.id // Pass parentId
+      );
+
+      if (response.success) {
+        toast.success("Reply posted successfully!");
+        router.push(`/thread/${post.threadId}`);
+        router.refresh();
+      } else {
+        toast.error(response.message || "Failed to post reply.");
+      }
+    } catch (error) {
+      console.error("Failed to post reply:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

@@ -1,12 +1,11 @@
-"use client";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { z } from "zod";
+import * as z from "zod";
+import { toast } from "sonner";
 
 import { formSchema } from "@/app/thread/[threadId]/post/create/components/schema";
 import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
@@ -51,21 +50,28 @@ export const PostEditForm = ({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const tagsArray = values.tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
+    try {
+      const tagsArray = values.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    const updatedPost = await updatePostAction(
-      post.id,
-      values.content,
-      tagsArray
-    ); // Pass tags
-    if (updatedPost) {
-      router.push(`/thread/${post.threadId}`);
-      router.refresh();
-    } else {
-      alert("Failed to update post.");
+      const response = await updatePostAction(
+        post.id,
+        values.content,
+        tagsArray
+      );
+
+      if (response.success) {
+        toast.success("Post updated successfully!");
+        router.push(`/thread/${post.threadId}`);
+        router.refresh();
+      } else {
+        toast.error(response.message || "Failed to update post.");
+      }
+    } catch (error) {
+      console.error("Failed to update post:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

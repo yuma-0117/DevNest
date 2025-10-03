@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -36,26 +37,32 @@ export const ThreadCreateForm = ({ allTags }: ThreadCreateFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (values.tags.charAt(values.tags.length - 1) == ",") {
-      values.tags = values.tags.slice(0, -1);
-    }
+    try {
+      if (values.tags.charAt(values.tags.length - 1) == ",") {
+        values.tags = values.tags.slice(0, -1);
+      }
 
-    const tagsArray = values.tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
+      const tagsArray = values.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    const response = await createThreadAction(
-      values.title,
-      values.description,
-      tagsArray
-    );
+      const response = await createThreadAction(
+        values.title,
+        values.description,
+        tagsArray
+      );
 
-    if (response.success) {
-      router.push(`/thread/${response.data.id}`);
-    } else {
-      console.error("Failed to create thread:", response.error);
-      // Optionally, display an error message to the user
+      if (response.success) {
+        toast.success("Thread created successfully!");
+        router.push(`/thread/${response.data.id}`);
+        router.refresh();
+      } else {
+        toast.error(response.message || "Failed to create thread.");
+      }
+    } catch (error) {
+      console.error("Failed to create thread:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

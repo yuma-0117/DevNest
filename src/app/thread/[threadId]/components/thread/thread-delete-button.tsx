@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -29,14 +30,21 @@ export const ThreadDeleteButton = ({ threadId }: ThreadDeleteButtonProps) => {
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const result = await deleteThreadAction(threadId);
-    if (result.success) {
-      router.push("/");
-      router.refresh();
-    } else {
-      alert("Failed to delete the thread.");
+    try {
+      const result = await deleteThreadAction(threadId);
+      if (result.success) {
+        toast.success("Thread deleted successfully!");
+        router.push("/");
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to delete the thread.");
+      }
+    } catch (error) {
+      console.error("Failed to delete thread:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
-    setIsDeleting(false);
   };
 
   return (

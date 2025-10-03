@@ -5,7 +5,8 @@ import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { z } from "zod";
+import * as z from "zod";
+import { toast } from "sonner";
 
 import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
 import { TagsField } from "@/app/thread/create/components/fields/tags-field";
@@ -48,14 +49,25 @@ export const PostCreateForm = ({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const tagsArray = values.tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
+    try {
+      const tagsArray = values.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "");
 
-    await createPostAction(values.content, threadId, tagsArray);
-    router.push(`/thread/${threadId}`);
-    router.refresh();
+      const response = await createPostAction(values.content, threadId, tagsArray);
+
+      if (response.success) {
+        toast.success("Post created successfully!");
+        router.push(`/thread/${threadId}`);
+        router.refresh();
+      } else {
+        toast.error(response.message || "Failed to create post.");
+      }
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   };
 
   return (
