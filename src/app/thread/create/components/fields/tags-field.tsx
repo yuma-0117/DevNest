@@ -1,7 +1,8 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormField } from '@/components/ui/form';
+import { Field, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field";
 import { Input } from '@/components/ui/input';
 
 export const TagsField = () => {
@@ -12,16 +13,14 @@ export const TagsField = () => {
       control={control}
       name="tags"
       render={({ field }) => (
-        <FormItem>
-          <FormLabel>Tags (comma-separated)</FormLabel>
-          <FormControl>
-            <Input placeholder="react, nextjs, typescript" {...field} />
-          </FormControl>
-          <FormDescription>
+        <Field>
+          <FieldLabel>Tags (comma-separated)</FieldLabel>
+          <Input placeholder="react, nextjs, typescript" {...field} />
+          <FieldDescription>
             Tags should be comma-separated.
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
+          </FieldDescription>
+          <FieldError />
+        </Field>
       )}
     />
   );

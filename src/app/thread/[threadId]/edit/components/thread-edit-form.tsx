@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Form } from "@/components/ui/form";
 import { formSchema } from "@/app/thread/create/components/schema";
 import { updateThreadAction } from "@/lib/actions/thread";
@@ -77,14 +79,18 @@ export const ThreadEditForm = ({ allTags, thread }: ThreadEditFormProps) => {
           <DescriptionField />
           <TagsField />
           <TagSuggestion allTags={allTags} />
-          <div className="flex gap-4">
+          <ButtonGroup>
             <Button variant="edit" type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Updating..." : "Update Thread"}
+              {form.formState.isSubmitting ? (
+                <><Spinner className="mr-2" /> Updating...</>
+              ) : (
+                "Update Thread"
+              )}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.back()}>
               Cancel
             </Button>
-          </div>
+          </ButtonGroup>
         </form>
       </Form>
     </FormProvider>

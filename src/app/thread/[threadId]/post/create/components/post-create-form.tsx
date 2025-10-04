@@ -11,14 +11,12 @@ import { toast } from "sonner";
 import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
 import { TagsField } from "@/app/thread/create/components/fields/tags-field";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { createPostAction } from "@/lib/actions/post";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -95,9 +93,8 @@ export const PostCreateForm = ({
               control={form.control}
               name="content"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
+                <Field>
+                  <FieldLabel>Content</FieldLabel>
                     {tab === "write" ? (
                       <Textarea
                         placeholder="Write your post content here..."
@@ -111,15 +108,18 @@ export const PostCreateForm = ({
                         </ReactMarkdown>
                       </div>
                     )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  <FieldError />
+                </Field>
               )}
             />
             <TagsField />
             <TagSuggestion allTags={allTags} />
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Create Post"}
+              {form.formState.isSubmitting ? (
+                <><Spinner className="mr-2" /> Creating...</>
+              ) : (
+                "Create Post"
+              )}
             </Button>
           </form>
         </Form>

@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { deletePostAction } from "@/lib/actions/post";
 
 import { DeleteIcon } from "@/components/icons/delete-icon";
@@ -50,7 +51,11 @@ export const PostDeleteButton = ({ postId }: PostDeleteButtonProps) => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" disabled={isDeleting}>
-          {isDeleting ? "Deleting..." : <DeleteIcon />}
+          {isDeleting ? (
+            <><Spinner className="mr-2" /> Deleting...</>
+          ) : (
+            <><DeleteIcon className="mr-2" /> Delete</>
+          )}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

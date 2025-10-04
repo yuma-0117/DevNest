@@ -1,5 +1,6 @@
 import { ThreadPageData } from "@/types/thread";
 import { PostCard } from "./post-card";
+import { Empty, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { Session } from "next-auth";
 import { memo } from "react";
 
@@ -18,9 +19,10 @@ const PostListComponent = ({
         <h2 className="text-2xl font-bold mb-4 text-foreground dark:text-foreground">
           Posts
         </h2>
-        <div className="text-center text-muted-foreground mt-8">
-          No posts found. Be the first to reply!
-        </div>
+        <Empty>
+          <EmptyTitle>No Posts Found</EmptyTitle>
+          <EmptyDescription>Be the first to reply!</EmptyDescription>
+        </Empty>
       </main>
     );
   }

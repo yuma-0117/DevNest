@@ -20,6 +20,7 @@ import { TagList } from "@/components/common/tag-list";
 import { MessageCircleIcon } from "@/components/icons/message-circle-icon";
 import { PinIcon } from "@/components/icons/pin-icon";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 import { UserDisplay } from "@/components/common/user-display";
 import { updateThreadPinnedStatusAction } from "@/lib/actions/thread";
@@ -66,7 +67,11 @@ export const ThreadCard = ({ thread, isPinnedCard }: { thread: ThreadWithUserAnd
               disabled={isPending}
               className="text-muted-foreground hover:text-foreground"
             >
-              <PinIcon className={`size-5 ${isPinned ? "text-primary" : ""}`} />
+              {isPending ? (
+                <Spinner className="size-5" />
+              ) : (
+                <PinIcon className={`size-5 ${isPinned ? "text-primary" : ""}`} />
+              )}
             </Button>
           )}
         </div>

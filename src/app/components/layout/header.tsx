@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -35,7 +36,7 @@ export const Header = ({ session }: { session: Session | null }) => {
       <div>
         <ThemeToggle />
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Spinner />}>
         <div>
           {session?.user ? (
             <DropdownMenu>

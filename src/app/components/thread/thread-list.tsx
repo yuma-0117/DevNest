@@ -8,7 +8,8 @@ import { getSupabaseRealtimeMetrics } from "@/lib/actions/supabase-metrics"; // 
 import { ThreadWithUserAndTags } from "@/types/thread";
 
 import { ThreadCard } from "./thread-card";
-import { ThreadCardSkeleton } from "./thread-card-skeleton";
+import { Spinner } from "@/components/ui/spinner";
+import { Empty, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { supabase } from "@/lib/db/supabase";
 
 // Constants for Realtime limits
@@ -150,15 +151,14 @@ export const ThreadList = () => {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          {[...Array(6)].map((_, i) => (
-            <ThreadCardSkeleton key={i} />
-          ))}
+        <div className="flex justify-center items-center h-48">
+          <Spinner className="h-12 w-12" />
         </div>
       ) : threads.length === 0 ? (
-        <div className="text-center text-muted-foreground mt-8">
-          No threads found. Be the first to create one!
-        </div>
+        <Empty>
+          <EmptyTitle>No Threads Found</EmptyTitle>
+          <EmptyDescription>Be the first to create one!</EmptyDescription>
+        </Empty>
       ) : (
         <div className="mt-4">
           {pinnedThreads.length > 0 && (

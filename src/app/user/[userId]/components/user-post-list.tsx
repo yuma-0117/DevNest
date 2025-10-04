@@ -1,6 +1,8 @@
 import { UserWithThreadsAndPosts } from "@/types/user";
 
 import { SimplePostCard } from "./simple-post-card";
+import { Empty, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { ItemGroup } from "@/components/ui/item";
 
 type Props = {
   posts: UserWithThreadsAndPosts["posts"];
@@ -9,17 +11,18 @@ type Props = {
 export const UserPostList = ({ posts }: Props) => {
   if (posts.length === 0) {
     return (
-      <div className="text-center text-muted-foreground mt-8">
-        This user has not made any posts yet.
-      </div>
+      <Empty>
+        <EmptyTitle>No Posts Yet</EmptyTitle>
+        <EmptyDescription>This user has not made any posts yet.</EmptyDescription>
+      </Empty>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <ItemGroup>
       {posts.map((post) => (
         <SimplePostCard key={post.id} post={post} />
       ))}
-    </div>
+    </ItemGroup>
   );
 };

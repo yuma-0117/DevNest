@@ -2,7 +2,7 @@
 
 import { useFormContext, useWatch } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
-import { FormLabel } from "@/components/ui/form";
+import { FieldLabel } from "@/components/ui/field";
 
 type Tag = {
   id: string;
@@ -58,7 +58,7 @@ export const TagSuggestion = ({ allTags }: TagSuggestionProps) => {
 
   return (
     <div className="space-y-2">
-      <FormLabel>Or select from existing tags</FormLabel>
+      <FieldLabel>Or select from existing tags</FieldLabel>
       <div className="max-h-32 overflow-y-auto flex flex-wrap gap-2 border p-2 rounded-md">
         {filteredTags.map((tag) => (
           <Badge

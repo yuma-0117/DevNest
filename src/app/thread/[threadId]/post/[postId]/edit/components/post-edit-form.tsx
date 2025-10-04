@@ -12,40 +12,59 @@ import { updatePostAction } from "@/lib/actions/post";
 import { PostWithUserAndTagsAndReplies } from "@/types/post";
 import {
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TagsField } from "@/app/thread/create/components/fields/tags-field";
+import { TagSuggestion } from "@/app/thread/create/components/fields/tag-suggestion";
 
 const formSchema = z.object({
   content: z.string().min(1, {
     message: "Content is required.",
   }),
+  tags: z.string().optional(),
 });
+
+type Tag = {
+  id: string;
+  name: string;
+};
 
 type PostEditFormProps = {
   post: PostWithUserAndTagsAndReplies;
+  allTags: Tag[];
 };
 
-export const PostEditForm = ({ post }: PostEditFormProps) => {
+export const PostEditForm = ({ post, allTags }: PostEditFormProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: post.content,
+      tags: post.tags.map((tag) => tag.name).join(","),
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      await updatePostAction(post.id, values.content, []);
+      if (values.tags && values.tags.charAt(values.tags.length - 1) === ",") {
+        values.tags = values.tags.slice(0, -1);
+      }
+
+      const tagsArray = values.tags
+        ? values.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag, index, self) => self.indexOf(tag) === index && tag !== "")
+        : [];
+
+      await updatePostAction(post.id, values.content, tagsArray);
       router.push(`/thread/${post.threadId}`);
       router.refresh();
     } catch (error) {
@@ -69,21 +88,21 @@ export const PostEditForm = ({ post }: PostEditFormProps) => {
                 control={form.control}
                 name="content"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content</FormLabel>
-                    <FormControl>
+                  <Field>
+                    <FieldLabel>Content</FieldLabel>
                       <Textarea
                         placeholder="What are your thoughts?"
                         className="resize-none"
                         rows={10}
                         {...field}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                    <FieldError />
+                  </Field>
                 )}
               />
             </TabsContent>
+            <TagsField />
+            <TagSuggestion allTags={allTags} />
             <TabsContent value="preview">
               <div className="prose dark:prose-invert">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -94,7 +113,11 @@ export const PostEditForm = ({ post }: PostEditFormProps) => {
           </Tabs>
           <div className="flex justify-end gap-2">
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Submitting..." : "Submit"}
+              {isLoading ? (
+                <><Spinner className="mr-2" /> Submitting...</>
+              ) : (
+                "Submit"
+              )}
             </Button>
             <Link href={`/thread/${post.threadId}`}>
               <Button type="button" variant="outline">

@@ -4,6 +4,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { Spinner } from "@/components/ui/spinner";
 import { updateUserAnonymousStatusAction } from "@/lib/actions/user";
 
 interface AnonymousToggleProps {
@@ -49,6 +50,7 @@ export const AnonymousToggle = ({ userId, initialIsAnonymous }: AnonymousToggleP
       <label htmlFor="anonymous-mode" className="text-sm font-medium text-gray-700">
         {isAnonymous ? "Anonymous Mode ON" : "Anonymous Mode OFF"}
       </label>
+      {isPending && <Spinner className="ml-2" />}
     </div>
   );
 };

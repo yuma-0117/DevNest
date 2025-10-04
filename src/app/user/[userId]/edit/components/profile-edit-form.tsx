@@ -5,8 +5,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfileAction } from "@/lib/actions/profile";
@@ -73,47 +76,49 @@ export const ProfileEditForm = ({ user }: ProfileEditFormProps) => {
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your username" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <Field>
+                  <FieldLabel>Username</FieldLabel>
+                  <Input placeholder="Your username" {...field} />
+                  <FieldError />
+                </Field>
               )}
             />
             <FormField
               control={form.control}
               name="bio"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bio</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Tell us about yourself..." 
-                      className="min-h-[120px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <Field>
+                  <FieldLabel>Bio</FieldLabel>
+                  <Textarea 
+                    placeholder="Tell us about yourself..." 
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                  <FieldError />
+                </Field>
               )}
             />
             <div className="flex justify-end gap-4">
-              <Button 
-                variant="outline" 
-                type="button" 
-                onClick={() => router.push(`/user/${user.id}`)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Saving..." : "Save Changes"}
-              </Button>
+              <ButtonGroup>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={() => router.push(`/user/${user.id}`)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <><Spinner className="mr-2" /> Saving...</>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </ButtonGroup>
             </div>
           </form>
         </Form>

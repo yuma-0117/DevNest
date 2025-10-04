@@ -1,7 +1,8 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormField } from '@/components/ui/form';
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -18,8 +19,8 @@ export const DescriptionField = () => {
       control={control}
       name="description"
       render={({ field }) => (
-        <FormItem>
-          <FormLabel>Description</FormLabel>
+        <Field>
+          <FieldLabel>Description</FieldLabel>
           <div className="flex gap-2 mb-2">
             <Button
               type="button"
@@ -36,24 +37,22 @@ export const DescriptionField = () => {
               Preview
             </Button>
           </div>
-          <FormControl>
-            <div>
-              {tab === 'write' ? (
-                <Textarea
-                  placeholder="Describe your thread in Markdown"
-                  {...field}
-                />
-              ) : (
-                <div className="prose dark:prose-invert p-3 min-h-[120px] rounded-md border border-input bg-background">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {description || 'Nothing to preview'}
-                  </ReactMarkdown>
-                </div>
-              )}
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+          <div>
+            {tab === 'write' ? (
+              <Textarea
+                placeholder="Describe your thread in Markdown"
+                {...field}
+              />
+            ) : (
+              <div className="prose dark:prose-invert p-3 min-h-[120px] rounded-md border border-input bg-background">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {description || 'Nothing to preview'}
+                </ReactMarkdown>
+              </div>
+            )}
+          </div>
+          <FieldError />
+        </Field>
       )}
     />
   );

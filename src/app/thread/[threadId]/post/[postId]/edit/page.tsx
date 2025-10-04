@@ -60,6 +60,8 @@ const EditPostPage = async ({
     notFound();
   }
 
+  const allTags = allTagsResponse.data;
+
   const displayName = thread.user.isAnonymous ? "anonymous" : thread.user.name;
 
   return (
@@ -76,7 +78,7 @@ const EditPostPage = async ({
               <CardTitle>Edit post</CardTitle>
             </CardHeader>
             <CardContent>
-              <PostEditForm post={post} />
+              <PostEditForm post={post} allTags={allTags} />
             </CardContent>
           </Card>
         </TabsContent>

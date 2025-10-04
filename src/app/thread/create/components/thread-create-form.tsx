@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Form } from "@/components/ui/form";
 import { formSchema } from "./schema";
 import { createThreadAction } from "@/lib/actions/thread";
@@ -75,7 +76,11 @@ export const ThreadCreateForm = ({ allTags }: ThreadCreateFormProps) => {
           <TagsField />
           <TagSuggestion allTags={allTags} />
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? "Creating..." : "Create Thread"}
+            {form.formState.isSubmitting ? (
+              <><Spinner className="mr-2" /> Creating...</>
+            ) : (
+              "Create Thread"
+            )}
           </Button>
         </form>
       </Form>
