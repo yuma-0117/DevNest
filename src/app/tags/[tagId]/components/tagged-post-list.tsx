@@ -3,6 +3,7 @@ import { Empty } from "@/components/ui/empty";
 import { auth } from "@/lib/auth";
 import { PostWithUserAndTagsAndReplies } from "@/types/post";
 import { TaggedPost } from "@/types/tag";
+import { Session } from "next-auth";
 import { use } from "react";
 
 interface TaggedPostListProps {
@@ -13,7 +14,9 @@ type ReplyWithId = {
   id: string;
 };
 
-const adaptTaggedPostToPostWithReplies = (post: TaggedPost): PostWithUserAndTagsAndReplies => {
+const adaptTaggedPostToPostWithReplies = (
+  post: TaggedPost
+): PostWithUserAndTagsAndReplies => {
   return {
     id: post.id,
     content: post.content,
@@ -31,7 +34,7 @@ const adaptTaggedPostToPostWithReplies = (post: TaggedPost): PostWithUserAndTags
 };
 
 export const TaggedPostList = ({ posts }: TaggedPostListProps) => {
-  const session = use(auth());
+  const session = use(auth()) as Session | null;
   const user = session?.user;
 
   if (posts.length === 0) {
@@ -41,7 +44,11 @@ export const TaggedPostList = ({ posts }: TaggedPostListProps) => {
   return (
     <div className="flex flex-col gap-2">
       {posts.map((post) => (
-        <PostCard key={post.id} post={adaptTaggedPostToPostWithReplies(post)} user={user} />
+        <PostCard
+          key={post.id}
+          post={adaptTaggedPostToPostWithReplies(post)}
+          user={user}
+        />
       ))}
     </div>
   );
