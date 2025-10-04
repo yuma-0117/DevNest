@@ -30,6 +30,7 @@ const userQuery = {
         },
         tags: {
           select: {
+            id: true,
             name: true,
           },
         },

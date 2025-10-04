@@ -143,10 +143,10 @@ const ReplyPostPage = async ({
                 </div>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                {thread.tags.map((tag) => (
-                  <Badge key={tag.name} variant="secondary">
-                    {tag.name}
-                  </Badge>
+                {thread.tags.map((tag: { id: string; name: string }) => (
+                  <Link key={tag.id} href={`/tags/${tag.id}`}>
+                    <Badge variant="secondary">{tag.name}</Badge>
+                  </Link>
                 ))}
               </div>
             </CardContent>

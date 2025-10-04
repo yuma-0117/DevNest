@@ -4,7 +4,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { ActionResponse } from "@/types/common";
-import { ThreadWithUserAndTags, ThreadPageData } from "@/types/thread";
+import { ThreadWithUserAndTags, ThreadPageData, ThreadHeaderData } from "@/types/thread";
 import { PostWithUserAndTagsAndReplies } from "@/types/post";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
@@ -43,6 +43,7 @@ export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWith
 
             tags: {
               select: {
+                id: true,
                 name: true,
               },
             },
@@ -118,6 +119,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
 
                 tags: {
                   select: {
+                    id: true,
                     name: true,
                   },
                 },
@@ -133,6 +135,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
 
             tags: {
               select: {
+                id: true,
                 name: true,
               },
             },
@@ -340,28 +343,7 @@ export const deleteThreadAction = async (
   }
 };
 
-export const fetchThreadHeaderAction = async (id?: string): Promise<ActionResponse<Prisma.ThreadGetPayload<{
-  select: {
-    id: true;
-    title: true;
-    description: true;
-    createAt: true;
-    isPinned: true;
-    user: {
-      select: {
-        id: true;
-        name: true;
-        image: true;
-        isAnonymous: true;
-      };
-    };
-    tags: {
-      select: {
-        name: true;
-      };
-    };
-  };
-}>>> => {
+export const fetchThreadHeaderAction = async (id?: string): Promise<ActionResponse<ThreadHeaderData>> => {
   if (!id) {
     return { success: false, error: "Thread ID is required." };
   }
@@ -390,6 +372,7 @@ export const fetchThreadHeaderAction = async (id?: string): Promise<ActionRespon
             },
             tags: {
               select: {
+                id: true,
                 name: true,
               },
             },
@@ -445,6 +428,7 @@ export const fetchPostsForThreadAction = async (id?: string): Promise<ActionResp
             },
             tags: {
               select: {
+                id: true,
                 name: true,
               },
             },

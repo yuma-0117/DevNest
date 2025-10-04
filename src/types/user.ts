@@ -21,9 +21,10 @@ export type UserWithThreadsAndPosts = Prisma.UserGetPayload<{
         };
         tags: {
           select: {
-            name: true;
-          };
-        };
+            id: true,
+            name: true,
+          },
+        },
         _count: {
           select: {
             posts: true;

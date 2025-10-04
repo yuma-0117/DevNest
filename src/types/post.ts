@@ -16,9 +16,10 @@ export type PostWithUserAndTagsAndReplies = Prisma.PostGetPayload<{
     };
     tags: {
       select: {
-        name: true;
-      };
-    };
+        id: true,
+        name: true,
+      },
+    },
     replies: {
       select: {
         id: true;

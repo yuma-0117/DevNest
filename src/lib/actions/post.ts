@@ -32,6 +32,7 @@ export const fetchPostByIdAction = async (id?: string): Promise<ActionResponse<P
 
         tags: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -229,7 +230,7 @@ export const fetchPostsByIdsAction = async (ids: string[]): Promise<ActionRespon
         createAt: true,
         threadId: true,
         user: { select: { id: true, name: true, image: true, isAnonymous: true } },
-        tags: { select: { name: true } },
+        tags: { select: { id: true, name: true } },
         replies: { select: { id: true } },
       },
       orderBy: { createAt: "asc" },

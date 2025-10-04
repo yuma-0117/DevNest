@@ -8,7 +8,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { TagList } from "@/components/common/tag-list";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -166,13 +166,7 @@ const PostCardComponent = ({
         </CardContent>
         {post.tags && post.tags.length > 0 && (
           <CardFooter>
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Badge key={tag.name} variant="default">
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
+            <TagList tags={post.tags} />
           </CardFooter>
         )}
       </Card>

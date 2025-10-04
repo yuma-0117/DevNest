@@ -1,17 +1,17 @@
-// Reusable component to display a list of tags.
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 interface TagListProps {
-  tags: { name: string }[];
+  tags: { id: string; name: string }[];
 }
 
 export const TagList = ({ tags }: TagListProps) => {
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((tag) => (
-        <Badge key={tag.name} variant="secondary">
-          {tag.name}
-        </Badge>
+        <Link key={tag.id} href={`/tags/${tag.id}`}>
+          <Badge variant="secondary">{tag.name}</Badge>
+        </Link>
       ))}
     </div>
   );

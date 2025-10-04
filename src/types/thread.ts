@@ -17,6 +17,7 @@ export type ThreadWithUserAndTags = Prisma.ThreadGetPayload<{
     };
     tags: {
       select: {
+        id: true;
         name: true;
       };
     };
@@ -61,6 +62,7 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
 
         tags: {
           select: {
+            id: true;
             name: true;
           };
         };
@@ -73,6 +75,7 @@ export type ThreadPageData = Prisma.ThreadGetPayload<{
     };
     tags: {
       select: {
+        id: true;
         name: true;
       };
     };
@@ -96,6 +99,7 @@ export type ThreadHeaderData = Prisma.ThreadGetPayload<{
     };
     tags: {
       select: {
+        id: true;
         name: true;
       };
     };

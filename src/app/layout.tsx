@@ -57,7 +57,6 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProviderWrapper>
-            {" "}
             {/* Wrap children with SessionProviderWrapper */}
             <Header session={session} />
             <main>{children}</main>
