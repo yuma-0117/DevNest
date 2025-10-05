@@ -1,19 +1,71 @@
-import { ThreadPageData } from "@/types/thread";
+import { PostWithUserAndTagsAndReplies, PostSortOrder } from "@/types/post";
+import { fetchPostsForThreadAction } from "@/lib/actions/post";
+import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useState, useCallback } from "react";
+
 import { PostCard } from "./post-card";
 import { Empty, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { Session } from "next-auth";
-import { memo } from "react";
 
-type Posts = ThreadPageData["posts"];
-
-const PostListComponent = ({
-  posts,
+export const PostList = ({
+  threadId,
   user,
 }: {
-  posts: Posts;
+  threadId: string;
   user: Session["user"] | undefined;
 }) => {
-  if (posts.length === 0) {
+  const [posts, setPosts] = useState<PostWithUserAndTagsAndReplies[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
+  const [sortOrder, setSortOrder] = useState<PostSortOrder>("oldest");
+
+  const fetchPosts = useCallback(async (take: number, cursor?: string) => {
+    setLoading(true);
+    const response = await fetchPostsForThreadAction(threadId, sortOrder, take, cursor);
+    if (response.success) {
+      setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+      setHasMore(response.data.hasMore);
+      setNextCursor(response.data.posts[response.data.posts.length - 1]?.id);
+    } else {
+      console.error("Failed to fetch posts:", response.error);
+      setHasMore(false);
+    }
+    setLoading(false);
+  }, [threadId, sortOrder]);
+
+  useEffect(() => {
+    setPosts([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+    fetchPosts(10);
+  }, [threadId, sortOrder, fetchPosts]);
+
+  useEffect(() => {
+    if (!hasMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchPosts(10, nextCursor);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const observerTarget = document.getElementById("post-observer-target");
+    if (observerTarget) {
+      observer.observe(observerTarget);
+    }
+
+    return () => {
+      if (observerTarget) {
+        observer.unobserve(observerTarget);
+      }
+    };
+  }, [hasMore, loading, nextCursor, fetchPosts]);
+
+  if (posts.length === 0 && !loading) {
     return (
       <main>
         <h2 className="text-2xl font-bold mb-4 text-foreground dark:text-foreground">
@@ -36,9 +88,13 @@ const PostListComponent = ({
         {posts.map((post) => (
           <PostCard key={post.id} post={post} user={user} />
         ))}
+        <div id="post-observer-target" className="h-1"></div>
+        {loading && (posts.length > 0) && (
+          <div className="flex justify-center items-center h-48">
+            <Spinner className="h-12 w-12" />
+          </div>
+        )}
       </div>
     </main>
   );
 };
-
-export const PostList = memo(PostListComponent);

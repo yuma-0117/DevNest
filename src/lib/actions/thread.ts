@@ -14,8 +14,10 @@ import { unstable_cache, revalidateTag } from 'next/cache';
 // ... other imports
 
 export const fetchAllThreadsAction = async (
-  sortOrder: ThreadSortOrder = "newest"
-): Promise<ActionResponse<ThreadWithUserAndTags[]>> => {
+  sortOrder: ThreadSortOrder = "newest",
+  take: number,
+  cursor?: string
+): Promise<ActionResponse<{ threads: ThreadWithUserAndTags[]; hasMore: boolean }>> => {
   try {
     // unstable_cache: Next.js 15's experimental cache API.
     // TODO: Consider migrating to stable caching APIs when available.
@@ -23,6 +25,9 @@ export const fetchAllThreadsAction = async (
     const getCachedThreads = unstable_cache(
       async (sortOrder: ThreadSortOrder) => {
         const threads = await prisma.thread.findMany({
+          take: take + 1, // Fetch one more to check if there's a next page
+          ...(cursor && { cursor: { id: cursor } }),
+          ...(cursor && { skip: 1 }), // Skip the cursor itself
           orderBy: (() => {
             switch (sortOrder) {
               case "oldest":
@@ -70,18 +75,20 @@ export const fetchAllThreadsAction = async (
         });
         return threads;
       },
-      ['all-threads', sortOrder], // Key for the cache
+      ['all-threads', sortOrder, take, cursor], // Key for the cache
       {
         tags: ['threads'], // Tag for revalidation
         revalidate: 3600, // Revalidate every hour
       }
     );
 
-    const threads = await getCachedThreads(sortOrder);
+    const threads = await getCachedThreads(sortOrder, take, cursor);
+    const hasMore = threads.length > take;
+    const data = hasMore ? threads.slice(0, -1) : threads;
 
-    return { success: true, data: threads };
+    return { success: true, data: { threads: data, hasMore } };
   } catch (e) {
-    console.error("Error fetching all threads:", e);
+    console.error("Error fetching all threads:", e.message);
     return { success: false, error: "Failed to fetch threads.", message: "An error occurred while fetching threads." };
   }
 };
@@ -172,7 +179,7 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
 
     return { success: true, data: thread };
   } catch (e) {
-    console.error("Error fetching thread by ID:", e);
+    console.error("Error fetching thread by ID:", e.message);
     return { success: false, error: "Failed to fetch thread.", message: "An error occurred while fetching the thread." };
   }
 };
@@ -209,7 +216,7 @@ export const createThreadAction = async (
     revalidateTag('thread-' + thread.id); // Revalidate specific thread cache
     return { success: true, data: thread };
   } catch (e) {
-    console.error("Error creating thread:", e);
+    console.error("Error creating thread:", e.message);
     return { success: false, error: "Failed to create thread.", message: "An error occurred while creating the thread." };
   }
 };
@@ -266,7 +273,7 @@ export const updateThreadAction = async (
     revalidateTag('thread-' + id); // Revalidate specific thread cache
     return { success: true, data: thread };
   } catch (e) {
-    console.error("Error updating thread:", e);
+    console.error("Error updating thread:", e.message);
     return { success: false, error: "Failed to update thread.", message: "An error occurred while updating the thread." };
   }
 };
@@ -304,7 +311,7 @@ export const updateThreadPinnedStatusAction = async (
     revalidateTag('thread-' + threadId); // Revalidate specific thread cache
     return { success: true, data: true };
   } catch (e) {
-    console.error("Error updating thread pinned status:", e);
+    console.error("Error updating thread pinned status:", e.message);
     return { success: false, error: "Failed to update thread pinned status.", message: "An error occurred while updating the thread's pinned status." };
   }
 };
@@ -352,7 +359,7 @@ export const deleteThreadAction = async (
 
     return { success: true, data: true };
   } catch (e) {
-    console.error("Error deleting thread:", e);
+    console.error("Error deleting thread:", e.message);
     return { success: false, error: "Failed to delete thread.", message: "An error occurred while deleting the thread." };
   }
 };
@@ -409,79 +416,7 @@ export const fetchThreadHeaderAction = async (id?: string): Promise<ActionRespon
 
     return { success: true, data: thread };
   } catch (e) {
-    console.error("Error fetching thread header by ID:", e);
+    console.error("Error fetching thread header by ID:", e.message);
     return { success: false, error: "Failed to fetch thread header.", message: "An error occurred while fetching the thread header." };
-  }
-};
-
-export const fetchPostsForThreadAction = async (
-  id?: string,
-  sortOrder: PostSortOrder = "oldest"
-): Promise<ActionResponse<PostWithUserAndTagsAndReplies[]>> => {
-  if (!id) {
-    return { success: false, error: "Thread ID is required." };
-  }
-
-  try {
-    // unstable_cache: Next.js 15's experimental cache API.
-    // TODO: Consider migrating to stable caching APIs when available.
-    // Current revalidation interval is set to 1 hour (3600 seconds).
-    const getCachedPosts = unstable_cache(
-      async (threadId: string) => {
-        const posts = await prisma.post.findMany({
-          where: { threadId: threadId, parentId: { equals: null } },
-          select: {
-            id: true,
-            content: true,
-            createAt: true,
-            threadId: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-                isAnonymous: true,
-              },
-            },
-            tags: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-            replies: {
-              select: {
-                id: true,
-              },
-            },
-          },
-          orderBy: (() => {
-            switch (sortOrder) {
-              case "newest":
-                return { createAt: "desc" };
-              case "oldest":
-                return { createAt: "asc" };
-              case "most_replies":
-                return { replies: { _count: "desc" } };
-              default:
-                return { createAt: "asc" };
-            }
-          })(),
-        });
-        return posts;
-      },
-      ['posts-for-thread', id || 'default', sortOrder],
-      {
-        tags: ['posts-for-thread-' + id, 'posts'],
-        revalidate: 3600,
-      }
-    );
-
-    const posts = await getCachedPosts(id || 'default');
-
-    return { success: true, data: posts };
-  } catch (e) {
-    console.error("Error fetching posts for thread:", e);
-    return { success: false, error: "Failed to fetch posts for thread.", message: "An error occurred while fetching posts for the thread." };
   }
 };

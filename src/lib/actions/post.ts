@@ -50,7 +50,7 @@ export const fetchPostByIdAction = async (id?: string): Promise<ActionResponse<P
 
     return { success: true, data: post };
   } catch (e) {
-    console.error("Error fetching post by ID:", e);
+    console.error("Error fetching post by ID:", e.message);
     return { success: false, error: "Failed to fetch post." };
   }
 };
@@ -101,7 +101,7 @@ export const createPostAction = async (
     revalidateTag('user-' + session.user.id); // Revalidate specific user cache
     return { success: true, data: post };
   } catch (e) {
-    console.error("Error creating post:", e);
+    console.error("Error creating post:", e.message);
     return { success: false, error: "Failed to create post." };
   }
 };
@@ -168,7 +168,7 @@ export const updatePostAction = async (
     revalidateTag('user-' + postToUpdate.userId); // Revalidate specific user cache
     return { success: true, data: updatedPost };
   } catch (e) {
-    console.error("Error updating post:", e);
+    console.error("Error updating post:", e.message);
     return { success: false, error: "Failed to update post." };
   }
 };
@@ -207,7 +207,7 @@ export const deletePostAction = async (id?: string): Promise<ActionResponse<bool
     revalidateTag('user-' + postToDelete.userId); // Revalidate specific user cache
     return { success: true, data: true };
   } catch (e) {
-    console.error("Error deleting post:", e);
+    console.error("Error deleting post:", e.message);
     return { success: false, error: "Failed to delete post." };
   }
 };
@@ -238,7 +238,72 @@ export const fetchPostsByIdsAction = async (ids: string[]): Promise<ActionRespon
 
     return { success: true, data: posts };
   } catch (e) {
-    console.error("Error fetching posts by IDs:", e);
+    console.error("Error fetching posts by IDs:", e.message);
     return { success: false, error: "Failed to fetch posts." };
+  }
+};
+
+export const fetchPostsForThreadAction = async (
+  threadId: string,
+  sortOrder: PostSortOrder = "oldest",
+  take: number,
+  cursor?: string
+): Promise<ActionResponse<{ posts: PostWithUserAndTagsAndReplies[]; hasMore: boolean }>> => {
+  if (!threadId) {
+    return { success: false, error: "Thread ID is required." };
+  }
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: { threadId: threadId, parentId: { equals: null } },
+      take: take + 1, // Fetch one more to check if there's a next page
+      ...(cursor && { cursor: { id: cursor } }),
+      ...(cursor && { skip: 1 }), // Skip the cursor itself
+      select: {
+        id: true,
+        content: true,
+        createAt: true,
+        threadId: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            isAnonymous: true,
+          },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        replies: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      orderBy: (() => {
+        switch (sortOrder) {
+          case "newest":
+            return { createAt: "desc" };
+          case "oldest":
+            return { createAt: "asc" };
+          case "most_replies":
+            return { replies: { _count: "desc" } };
+          default:
+            return { createAt: "asc" };
+        }
+      })(),
+    });
+
+    const hasMore = posts.length > take;
+    const data = hasMore ? posts.slice(0, -1) : posts;
+
+    return { success: true, data: { posts: data, hasMore } };
+  } catch (e) {
+    console.error("Error fetching posts for thread:", e);
+    return { success: false, error: "Failed to fetch posts for thread.", message: "An error occurred while fetching posts for the thread." };
   }
 };

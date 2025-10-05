@@ -25,26 +25,32 @@ const RETRY_CONNECTION_INTERVAL = 5 * 60 * 1000; // Retry every 5 minutes
 export const ThreadList = () => {
   const [threads, setThreads] = useState<ThreadWithUserAndTags[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [sortOrder, setSortOrder] = useState<ThreadSortOrder>("newest");
   const [showRealtimeWarning, setShowRealtimeWarning] = useState(false); // New state for warning
   const [realtimeEnabled, setRealtimeEnabled] = useState(true);
   const [showRetryOption, setShowRetryOption] = useState(false);
 
-  const fetchAllThreads = useCallback(async () => {
+  const fetchAllThreads = useCallback(async (take: number, cursor?: string) => {
     setLoading(true);
-    const response = await fetchAllThreadsAction(sortOrder);
+    const response = await fetchAllThreadsAction(sortOrder, take, cursor);
     if (response.success) {
-      setThreads(response.data);
+      setThreads((prevThreads) => [...prevThreads, ...response.data.threads]);
+      setHasMore(response.data.hasMore);
+      setNextCursor(response.data.threads[response.data.threads.length - 1]?.id);
     } else {
       console.error("Failed to fetch threads:", response.error);
-      setThreads([]);
+      setHasMore(false);
     }
     setLoading(false);
   }, [sortOrder]);
 
-  // Effect for fetching threads and subscribing to real-time updates
   useEffect(() => {
-    fetchAllThreads();
+    setThreads([]); // Clear threads on sort order change
+    setNextCursor(undefined); // Reset cursor
+    setHasMore(true); // Assume more data initially
+    fetchAllThreads(10); // Initial load of 10 threads
 
     if (!realtimeEnabled) return; // Realtimeが無効化されている場合は処理しない
 
@@ -54,14 +60,20 @@ export const ThreadList = () => {
         "postgres_changes",
         { event: "*", schema: "public", table: "Thread" },
         () => {
-          fetchAllThreads();
+          setThreads([]); // Clear threads on real-time update
+          setNextCursor(undefined); // Reset cursor
+          setHasMore(true); // Assume more data initially
+          fetchAllThreads(10); // Reload initial 10 threads
         }
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "Tag" },
         () => {
-          fetchAllThreads();
+          setThreads([]); // Clear threads on real-time update
+          setNextCursor(undefined); // Reset cursor
+          setHasMore(true); // Assume more data initially
+          fetchAllThreads(10); // Reload initial 10 threads
         }
       )
       .subscribe();
@@ -69,9 +81,9 @@ export const ThreadList = () => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [realtimeEnabled, fetchAllThreads, sortOrder]); // realtimeEnabledとfetchAllThreadsが変更されたときに再実行
+  }, [realtimeEnabled, fetchAllThreads, sortOrder]);
 
-  // New useEffect for monitoring Supabase Realtime metrics
+  // Effect for monitoring Supabase Realtime metrics
   useEffect(() => {
     const fetchRealtimeMetrics = async () => {
       const response = await getSupabaseRealtimeMetrics();
@@ -100,7 +112,7 @@ export const ThreadList = () => {
     );
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
-  }, [realtimeEnabled, fetchAllThreads]); // realtimeEnabledとfetchAllThreadsが変更されたときに再実行
+  }, [realtimeEnabled]); // fetchAllThreadsを依存関係から削除
 
   // Effect for retrying connection when showRetryOption is true
   useEffect(() => {
@@ -121,7 +133,32 @@ export const ThreadList = () => {
     }, RETRY_CONNECTION_INTERVAL);
 
     return () => clearInterval(retryInterval);
-  }, [showRetryOption, fetchAllThreads]);
+  }, [showRetryOption]); // fetchAllThreadsを依存関係から削除
+
+  // Intersection Observer for infinite scrolling
+  useEffect(() => {
+    if (!hasMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchAllThreads(10, nextCursor);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const observerTarget = document.getElementById("observer-target");
+    if (observerTarget) {
+      observer.observe(observerTarget);
+    }
+
+    return () => {
+      if (observerTarget) {
+        observer.unobserve(observerTarget);
+      }
+    };
+  }, [hasMore, loading, nextCursor, fetchAllThreads]);
 
   const pinnedThreads = threads.filter((thread) => thread.isPinned);
   const unpinnedThreads = threads.filter((thread) => !thread.isPinned);
@@ -225,6 +262,12 @@ export const ThreadList = () => {
                   <ThreadCard key={thread.id} thread={thread} />
                 ))}
               </div>
+            </div>
+          )}
+          <div id="observer-target" className="h-1"></div>
+          {loading && (
+            <div className="flex justify-center items-center h-48">
+              <Spinner className="h-12 w-12" />
             </div>
           )}
         </div>
