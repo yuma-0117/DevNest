@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+export type PostSortOrder = "newest" | "oldest" | "most_replies";
+
 export type PostWithUserAndTagsAndReplies = Prisma.PostGetPayload<{
   select: {
     id: true;

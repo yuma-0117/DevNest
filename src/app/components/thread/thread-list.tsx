@@ -5,12 +5,14 @@ import { useEffect, useState, useCallback } from "react";
 
 import { fetchAllThreadsAction } from "@/lib/actions/thread";
 import { getSupabaseRealtimeMetrics } from "@/lib/actions/supabase-metrics"; // New import
-import { ThreadWithUserAndTags } from "@/types/thread";
+import { ThreadWithUserAndTags, ThreadSortOrder } from "@/types/thread";
 
 import { ThreadCard } from "./thread-card";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { supabase } from "@/lib/db/supabase";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Button } from "@/components/ui/button";
 
 // Constants for Realtime limits
 const REALTIME_CONNECTION_LIMIT = 200;
@@ -23,13 +25,14 @@ const RETRY_CONNECTION_INTERVAL = 5 * 60 * 1000; // Retry every 5 minutes
 export const ThreadList = () => {
   const [threads, setThreads] = useState<ThreadWithUserAndTags[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<ThreadSortOrder>("newest");
   const [showRealtimeWarning, setShowRealtimeWarning] = useState(false); // New state for warning
   const [realtimeEnabled, setRealtimeEnabled] = useState(true);
   const [showRetryOption, setShowRetryOption] = useState(false);
 
   const fetchAllThreads = useCallback(async () => {
     setLoading(true);
-    const response = await fetchAllThreadsAction();
+    const response = await fetchAllThreadsAction(sortOrder);
     if (response.success) {
       setThreads(response.data);
     } else {
@@ -37,7 +40,7 @@ export const ThreadList = () => {
       setThreads([]);
     }
     setLoading(false);
-  }, []);
+  }, [sortOrder]);
 
   // Effect for fetching threads and subscribing to real-time updates
   useEffect(() => {
@@ -66,7 +69,7 @@ export const ThreadList = () => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [realtimeEnabled, fetchAllThreads]); // realtimeEnabledとfetchAllThreadsが変更されたときに再実行
+  }, [realtimeEnabled, fetchAllThreads, sortOrder]); // realtimeEnabledとfetchAllThreadsが変更されたときに再実行
 
   // New useEffect for monitoring Supabase Realtime metrics
   useEffect(() => {
@@ -105,9 +108,11 @@ export const ThreadList = () => {
 
     const retryInterval = setInterval(() => {
       // 接続数が閾値以下であればRealtimeを再有効化
-      getSupabaseRealtimeMetrics().then(response => {
-        if (response.success && 
-            response.data.activeConnections < REALTIME_WARNING_THRESHOLD) {
+      getSupabaseRealtimeMetrics().then((response) => {
+        if (
+          response.success &&
+          response.data.activeConnections < REALTIME_WARNING_THRESHOLD
+        ) {
           setRealtimeEnabled(true);
           setShowRetryOption(false);
           clearInterval(retryInterval);
@@ -131,13 +136,15 @@ export const ThreadList = () => {
             Realtime updates may become unreliable.
           </p>
           {showRetryOption && (
-            <button 
+            <button
               className="mt-2 text-blue-600 hover:underline"
               onClick={() => {
                 // 手動での再接続を試みる
-                getSupabaseRealtimeMetrics().then(response => {
-                  if (response.success && 
-                      response.data.activeConnections < REALTIME_WARNING_THRESHOLD) {
+                getSupabaseRealtimeMetrics().then((response) => {
+                  if (
+                    response.success &&
+                    response.data.activeConnections < REALTIME_WARNING_THRESHOLD
+                  ) {
                     setRealtimeEnabled(true);
                     setShowRetryOption(false);
                   }
@@ -161,6 +168,38 @@ export const ThreadList = () => {
         </Empty>
       ) : (
         <div className="mt-4">
+          <div className="flex justify-end mb-4">
+            <ButtonGroup>
+              <Button
+                variant={sortOrder === "newest" ? "default" : "outline"}
+                onClick={() => setSortOrder("newest")}
+              >
+                Newest
+              </Button>
+              <Button
+                variant={sortOrder === "oldest" ? "default" : "outline"}
+                onClick={() => setSortOrder("oldest")}
+              >
+                Oldest
+              </Button>
+              <Button
+                variant={sortOrder === "most_comments" ? "default" : "outline"}
+                onClick={() => setSortOrder("most_comments")}
+              >
+                Most Comments
+              </Button>
+              <Button
+                variant={
+                  sortOrder === "most_comments_last_week"
+                    ? "default"
+                    : "outline"
+                }
+                onClick={() => setSortOrder("most_comments_last_week")}
+              >
+                Most Comments (Last Week)
+              </Button>
+            </ButtonGroup>
+          </div>
           {pinnedThreads.length > 0 && (
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-3">Pinned Threads</h3>

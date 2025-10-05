@@ -4,8 +4,8 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { ActionResponse } from "@/types/common";
-import { ThreadWithUserAndTags, ThreadPageData, ThreadHeaderData } from "@/types/thread";
-import { PostWithUserAndTagsAndReplies } from "@/types/post";
+import { ThreadWithUserAndTags, ThreadPageData, ThreadHeaderData, ThreadSortOrder } from "@/types/thread";
+import { PostWithUserAndTagsAndReplies, PostSortOrder } from "@/types/post";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 
@@ -13,18 +13,32 @@ import { unstable_cache, revalidateTag } from 'next/cache';
 
 // ... other imports
 
-export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWithUserAndTags[]>> => {
+export const fetchAllThreadsAction = async (
+  sortOrder: ThreadSortOrder = "newest"
+): Promise<ActionResponse<ThreadWithUserAndTags[]>> => {
   try {
     // unstable_cache: Next.js 15's experimental cache API.
     // TODO: Consider migrating to stable caching APIs when available.
     // Current revalidation interval is set to 1 hour (3600 seconds).
     const getCachedThreads = unstable_cache(
-      async () => {
+      async (sortOrder: ThreadSortOrder) => {
         const threads = await prisma.thread.findMany({
-          orderBy: [
-            { isPinned: "desc" }, // Pinned threads first
-            { createAt: "desc" }, // Then by creation date
-          ],
+          orderBy: (() => {
+            switch (sortOrder) {
+              case "oldest":
+                return [{ isPinned: "desc" }, { createAt: "asc" }];
+              case "newest":
+                return [{ isPinned: "desc" }, { createAt: "desc" }];
+              case "most_comments":
+                return [{ isPinned: "desc" }, { posts: { _count: "desc" } }];
+              case "most_comments_last_week":
+                // TODO: Implement more complex logic to count comments in the last week.
+                // For now, it will sort by total comments.
+                return [{ isPinned: "desc" }, { posts: { _count: "desc" } }];
+              default:
+                return [{ isPinned: "desc" }, { createAt: "desc" }];
+            }
+          })(),
           select: {
             id: true,
             title: true,
@@ -56,14 +70,14 @@ export const fetchAllThreadsAction = async (): Promise<ActionResponse<ThreadWith
         });
         return threads;
       },
-      ['all-threads'], // Key for the cache
+      ['all-threads', sortOrder], // Key for the cache
       {
         tags: ['threads'], // Tag for revalidation
         revalidate: 3600, // Revalidate every hour
       }
     );
 
-    const threads = await getCachedThreads();
+    const threads = await getCachedThreads(sortOrder);
 
     return { success: true, data: threads };
   } catch (e) {
@@ -400,7 +414,10 @@ export const fetchThreadHeaderAction = async (id?: string): Promise<ActionRespon
   }
 };
 
-export const fetchPostsForThreadAction = async (id?: string): Promise<ActionResponse<PostWithUserAndTagsAndReplies[]>> => {
+export const fetchPostsForThreadAction = async (
+  id?: string,
+  sortOrder: PostSortOrder = "oldest"
+): Promise<ActionResponse<PostWithUserAndTagsAndReplies[]>> => {
   if (!id) {
     return { success: false, error: "Thread ID is required." };
   }
@@ -438,11 +455,22 @@ export const fetchPostsForThreadAction = async (id?: string): Promise<ActionResp
               },
             },
           },
-          orderBy: { createAt: "asc" },
+          orderBy: (() => {
+            switch (sortOrder) {
+              case "newest":
+                return { createAt: "desc" };
+              case "oldest":
+                return { createAt: "asc" };
+              case "most_replies":
+                return { replies: { _count: "desc" } };
+              default:
+                return { createAt: "asc" };
+            }
+          })(),
         });
         return posts;
       },
-      ['posts-for-thread', id || 'default'],
+      ['posts-for-thread', id || 'default', sortOrder],
       {
         tags: ['posts-for-thread-' + id, 'posts'],
         revalidate: 3600,

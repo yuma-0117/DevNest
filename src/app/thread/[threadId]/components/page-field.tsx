@@ -5,12 +5,13 @@ import { useEffect, useState, useCallback } from "react";
 
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   fetchThreadHeaderAction,
   fetchPostsForThreadAction,
 } from "@/lib/actions/thread";
 import { supabase } from "@/lib/db/supabase";
-import { PostWithUserAndTagsAndReplies } from "@/types/post";
+import { PostWithUserAndTagsAndReplies, PostSortOrder } from "@/types/post";
 import { ThreadHeaderData } from "@/types/thread";
 import { useRouter } from "next/navigation";
 
@@ -31,6 +32,7 @@ export const PageField = ({
     null
   );
   const [posts, setPosts] = useState<PostWithUserAndTagsAndReplies[]>([]);
+  const [sortOrder, setSortOrder] = useState<PostSortOrder>("oldest");
   const router = useRouter();
 
   const fetchThreadHeader = useCallback(async () => {
@@ -44,13 +46,13 @@ export const PageField = ({
   }, [threadId]);
 
   const fetchPosts = useCallback(async () => {
-    const response = await fetchPostsForThreadAction(threadId);
+    const response = await fetchPostsForThreadAction(threadId, sortOrder);
     if (response.success) {
       setPosts(response.data);
     } else {
       console.error("Failed to fetch posts:", response.error);
     }
-  }, [threadId]);
+  }, [threadId, sortOrder]);
 
   useEffect(() => {
     if (threadId) {
@@ -107,7 +109,7 @@ export const PageField = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [threadId, fetchThreadHeader, fetchPosts, router]);
+  }, [threadId, fetchThreadHeader, fetchPosts, router, sortOrder]);
 
   if (!threadHeader) {
     return (
@@ -121,6 +123,28 @@ export const PageField = ({
   return (
     <div className="container mx-auto py-8">
       <ThreadHeader thread={threadHeader} user={session?.user} />
+      <div className="flex justify-end mb-4">
+        <ButtonGroup>
+          <Button
+            variant={sortOrder === "newest" ? "default" : "outline"}
+            onClick={() => setSortOrder("newest")}
+          >
+            Newest
+          </Button>
+          <Button
+            variant={sortOrder === "oldest" ? "default" : "outline"}
+            onClick={() => setSortOrder("oldest")}
+          >
+            Oldest
+          </Button>
+          <Button
+            variant={sortOrder === "most_replies" ? "default" : "outline"}
+            onClick={() => setSortOrder("most_replies")}
+          >
+            Most Replies
+          </Button>
+        </ButtonGroup>
+      </div>
       <PostList posts={posts} user={session?.user} />
       <Link
         href={`/thread/${threadId}/post/create`}

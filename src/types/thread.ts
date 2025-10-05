@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+export type ThreadSortOrder = "oldest" | "newest" | "most_comments" | "most_comments_last_week";
+
 export type ThreadWithUserAndTags = Prisma.ThreadGetPayload<{
   select: {
     id: true;
