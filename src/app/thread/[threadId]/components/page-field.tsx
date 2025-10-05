@@ -10,6 +10,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { supabase } from "@/lib/db/supabase";
 import { PostSortOrder } from "@/types";
 import { ThreadHeaderData } from "@/types/thread";
+import { fetchThreadHeaderAction } from "@/lib/actions/thread";
 
 import { PostList } from "./post/post-list";
 import { PostListSkeleton } from "./post/post-list-skeleton";
@@ -28,10 +29,19 @@ export const PageField = ({
   );
   const [sortOrder, setSortOrder] = useState<PostSortOrder>("oldest");
 
+  const fetchThreadHeader = useCallback(async () => {
+    const response = await fetchThreadHeaderAction(threadId);
+    if (response.success) {
+      setThreadHeader(response.data);
+    } else {
+      console.error("Failed to fetch thread header:", response.error);
+      setThreadHeader(null);
+    }
+  }, [threadId]);
+
   useEffect(() => {
     if (threadId) {
-      // fetchThreadHeader(); // Removed
-      // fetchPosts(); // Removed
+      fetchThreadHeader();
     }
 
     const channel = supabase.channel(`thread-page-${threadId}`);
@@ -47,7 +57,7 @@ export const PageField = ({
         },
         (payload) => {
           if (payload.eventType === "UPDATE") {
-            // fetchThreadHeader(); // Removed
+            fetchThreadHeader();
           }
           if (payload.eventType === "DELETE") {
             setThreadHeader(null);
@@ -75,7 +85,7 @@ export const PageField = ({
           table: "Tag",
         },
         () => {
-          // fetchThreadHeader(); // Removed
+          fetchThreadHeader();
         }
       )
       .subscribe();
@@ -83,7 +93,7 @@ export const PageField = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [threadId, sortOrder]);
+  }, [threadId, sortOrder, fetchThreadHeader]);
 
   if (!threadHeader) {
     return (
