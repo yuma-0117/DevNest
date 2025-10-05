@@ -5,7 +5,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { ActionResponse } from "@/types/common";
 import { ThreadWithUserAndTags, ThreadPageData, ThreadHeaderData, ThreadSortOrder } from "@/types/thread";
-import { PostWithUserAndTagsAndReplies, PostSortOrder } from "@/types/post";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 
@@ -23,7 +22,7 @@ export const fetchAllThreadsAction = async (
     // TODO: Consider migrating to stable caching APIs when available.
     // Current revalidation interval is set to 1 hour (3600 seconds).
     const getCachedThreads = unstable_cache(
-      async (sortOrder: ThreadSortOrder) => {
+      async (sortOrder: ThreadSortOrder, take: number, cursor?: string) => {
         const threads = await prisma.thread.findMany({
           take: take + 1, // Fetch one more to check if there's a next page
           ...(cursor && { cursor: { id: cursor } }),
@@ -75,7 +74,7 @@ export const fetchAllThreadsAction = async (
         });
         return threads;
       },
-      ['all-threads', sortOrder, take, cursor], // Key for the cache
+      ['all-threads', sortOrder, take.toString(), cursor || 'default'], // Key for the cache
       {
         tags: ['threads'], // Tag for revalidation
         revalidate: 3600, // Revalidate every hour
@@ -87,8 +86,8 @@ export const fetchAllThreadsAction = async (
     const data = hasMore ? threads.slice(0, -1) : threads;
 
     return { success: true, data: { threads: data, hasMore } };
-  } catch (e) {
-    console.error("Error fetching all threads:", e.message);
+  } catch (e: unknown) {
+    console.error("Error fetching all threads:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to fetch threads.", message: "An error occurred while fetching threads." };
   }
 };
@@ -178,8 +177,8 @@ export const fetchThreadByIdAction = async (id?: string): Promise<ActionResponse
     }
 
     return { success: true, data: thread };
-  } catch (e) {
-    console.error("Error fetching thread by ID:", e.message);
+  } catch (e: unknown) {
+    console.error("Error fetching thread by ID:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to fetch thread.", message: "An error occurred while fetching the thread." };
   }
 };
@@ -215,8 +214,8 @@ export const createThreadAction = async (
     revalidateTag('threads'); // Revalidate cached threads
     revalidateTag('thread-' + thread.id); // Revalidate specific thread cache
     return { success: true, data: thread };
-  } catch (e) {
-    console.error("Error creating thread:", e.message);
+  } catch (e: unknown) {
+    console.error("Error creating thread:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to create thread.", message: "An error occurred while creating the thread." };
   }
 };
@@ -272,8 +271,8 @@ export const updateThreadAction = async (
     revalidateTag('threads'); // Revalidate cached threads
     revalidateTag('thread-' + id); // Revalidate specific thread cache
     return { success: true, data: thread };
-  } catch (e) {
-    console.error("Error updating thread:", e.message);
+  } catch (e: unknown) {
+    console.error("Error updating thread:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to update thread.", message: "An error occurred while updating the thread." };
   }
 };
@@ -310,8 +309,8 @@ export const updateThreadPinnedStatusAction = async (
     revalidateTag('threads'); // Revalidate cached threads
     revalidateTag('thread-' + threadId); // Revalidate specific thread cache
     return { success: true, data: true };
-  } catch (e) {
-    console.error("Error updating thread pinned status:", e.message);
+  } catch (e: unknown) {
+    console.error("Error updating thread pinned status:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to update thread pinned status.", message: "An error occurred while updating the thread's pinned status." };
   }
 };
@@ -358,8 +357,8 @@ export const deleteThreadAction = async (
     revalidateTag(`thread-${threadId}`);
 
     return { success: true, data: true };
-  } catch (e) {
-    console.error("Error deleting thread:", e.message);
+  } catch (e: unknown) {
+    console.error("Error deleting thread:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to delete thread.", message: "An error occurred while deleting the thread." };
   }
 };
@@ -415,8 +414,8 @@ export const fetchThreadHeaderAction = async (id?: string): Promise<ActionRespon
     }
 
     return { success: true, data: thread };
-  } catch (e) {
-    console.error("Error fetching thread header by ID:", e.message);
+  } catch (e: unknown) {
+    console.error("Error fetching thread header by ID:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to fetch thread header.", message: "An error occurred while fetching the thread header." };
   }
 };

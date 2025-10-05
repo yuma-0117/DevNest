@@ -1,25 +1,20 @@
 "use client";
 
+import { Session } from "next-auth";
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import {
-  fetchThreadHeaderAction,
-  fetchPostsForThreadAction,
-} from "@/lib/actions/thread";
 import { supabase } from "@/lib/db/supabase";
-import { PostWithUserAndTagsAndReplies, PostSortOrder } from "@/types/post";
+import { PostSortOrder } from "@/types";
 import { ThreadHeaderData } from "@/types/thread";
-import { useRouter } from "next/navigation";
 
 import { PostList } from "./post/post-list";
 import { PostListSkeleton } from "./post/post-list-skeleton";
 import { ThreadHeader } from "./thread/thread-header";
 import { ThreadHeaderSkeleton } from "./thread/thread-header-skeleton";
-import { Session } from "next-auth";
 
 export const PageField = ({
   threadId,
@@ -31,33 +26,12 @@ export const PageField = ({
   const [threadHeader, setThreadHeader] = useState<ThreadHeaderData | null>(
     null
   );
-  const [posts, setPosts] = useState<PostWithUserAndTagsAndReplies[]>([]);
   const [sortOrder, setSortOrder] = useState<PostSortOrder>("oldest");
-  const router = useRouter();
-
-  const fetchThreadHeader = useCallback(async () => {
-    const response = await fetchThreadHeaderAction(threadId);
-    if (response.success) {
-      setThreadHeader(response.data);
-    } else {
-      console.error("Failed to fetch thread header:", response.error);
-      setThreadHeader(null);
-    }
-  }, [threadId]);
-
-  const fetchPosts = useCallback(async () => {
-    const response = await fetchPostsForThreadAction(threadId, sortOrder);
-    if (response.success) {
-      setPosts(response.data);
-    } else {
-      console.error("Failed to fetch posts:", response.error);
-    }
-  }, [threadId, sortOrder]);
 
   useEffect(() => {
     if (threadId) {
-      fetchThreadHeader();
-      fetchPosts();
+      // fetchThreadHeader(); // Removed
+      // fetchPosts(); // Removed
     }
 
     const channel = supabase.channel(`thread-page-${threadId}`);
@@ -73,11 +47,11 @@ export const PageField = ({
         },
         (payload) => {
           if (payload.eventType === "UPDATE") {
-            fetchThreadHeader();
+            // fetchThreadHeader(); // Removed
           }
           if (payload.eventType === "DELETE") {
             setThreadHeader(null);
-            router.push("/");
+            // router.push("/"); // Removed
           }
         }
       )
@@ -90,7 +64,7 @@ export const PageField = ({
           filter: `thread_id=eq.${threadId}`,
         },
         () => {
-          fetchPosts();
+          // fetchPosts(); // Removed
         }
       )
       .on(
@@ -101,7 +75,7 @@ export const PageField = ({
           table: "Tag",
         },
         () => {
-          fetchThreadHeader();
+          // fetchThreadHeader(); // Removed
         }
       )
       .subscribe();
@@ -109,7 +83,7 @@ export const PageField = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [threadId, fetchThreadHeader, fetchPosts, router, sortOrder]);
+  }, [threadId, sortOrder]);
 
   if (!threadHeader) {
     return (
@@ -145,7 +119,11 @@ export const PageField = ({
           </Button>
         </ButtonGroup>
       </div>
-      <PostList posts={posts} user={session?.user} />
+      <PostList
+        threadId={threadId}
+        user={session?.user}
+        sortOrder={sortOrder}
+      />
       <Link
         href={`/thread/${threadId}/post/create`}
         className="fixed bottom-3 right-3"

@@ -4,7 +4,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
 import { ActionResponse } from "@/types/common";
-import { PostWithUserAndTagsAndReplies } from "@/types/post";
+import { PostWithUserAndTagsAndReplies, PostSortOrder } from "@/types/post";
 import { Prisma } from "@prisma/client";
 import { revalidateTag } from 'next/cache';
 
@@ -49,8 +49,8 @@ export const fetchPostByIdAction = async (id?: string): Promise<ActionResponse<P
     }
 
     return { success: true, data: post };
-  } catch (e) {
-    console.error("Error fetching post by ID:", e.message);
+  } catch (e: unknown) {
+    console.error("Error fetching post by ID:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to fetch post." };
   }
 };
@@ -100,8 +100,8 @@ export const createPostAction = async (
     revalidateTag('threads'); // Revalidate all threads cache
     revalidateTag('user-' + session.user.id); // Revalidate specific user cache
     return { success: true, data: post };
-  } catch (e) {
-    console.error("Error creating post:", e.message);
+  } catch (e: unknown) {
+    console.error("Error creating post:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to create post." };
   }
 };
@@ -167,8 +167,8 @@ export const updatePostAction = async (
     revalidateTag('threads'); // Revalidate all threads cache
     revalidateTag('user-' + postToUpdate.userId); // Revalidate specific user cache
     return { success: true, data: updatedPost };
-  } catch (e) {
-    console.error("Error updating post:", e.message);
+  } catch (e: unknown) {
+    console.error("Error updating post:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to update post." };
   }
 };
@@ -206,8 +206,8 @@ export const deletePostAction = async (id?: string): Promise<ActionResponse<bool
     revalidateTag('threads'); // Revalidate all threads cache
     revalidateTag('user-' + postToDelete.userId); // Revalidate specific user cache
     return { success: true, data: true };
-  } catch (e) {
-    console.error("Error deleting post:", e.message);
+  } catch (e: unknown) {
+    console.error("Error deleting post:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to delete post." };
   }
 };
@@ -237,8 +237,8 @@ export const fetchPostsByIdsAction = async (ids: string[]): Promise<ActionRespon
     });
 
     return { success: true, data: posts };
-  } catch (e) {
-    console.error("Error fetching posts by IDs:", e.message);
+  } catch (e: unknown) {
+    console.error("Error fetching posts by IDs:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to fetch posts." };
   }
 };
@@ -302,8 +302,8 @@ export const fetchPostsForThreadAction = async (
     const data = hasMore ? posts.slice(0, -1) : posts;
 
     return { success: true, data: { posts: data, hasMore } };
-  } catch (e) {
-    console.error("Error fetching posts for thread:", e);
+  } catch (e: unknown) {
+    console.error("Error fetching posts for thread:", e instanceof Error ? e.message : "An unknown error occurred.");
     return { success: false, error: "Failed to fetch posts for thread.", message: "An error occurred while fetching posts for the thread." };
   }
 };

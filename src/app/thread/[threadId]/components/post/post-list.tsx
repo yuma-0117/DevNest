@@ -10,15 +10,16 @@ import { Session } from "next-auth";
 export const PostList = ({
   threadId,
   user,
+  sortOrder,
 }: {
   threadId: string;
   user: Session["user"] | undefined;
+  sortOrder: PostSortOrder;
 }) => {
   const [posts, setPosts] = useState<PostWithUserAndTagsAndReplies[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [sortOrder, setSortOrder] = useState<PostSortOrder>("oldest");
 
   const fetchPosts = useCallback(async (take: number, cursor?: string) => {
     setLoading(true);
