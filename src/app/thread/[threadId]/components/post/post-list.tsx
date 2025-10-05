@@ -25,7 +25,12 @@ export const PostList = ({
     setLoading(true);
     const response = await fetchPostsForThreadAction(threadId, sortOrder, take, cursor);
     if (response.success) {
-      setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+      setPosts((prevPosts) => {
+        const newPosts = response.data.posts.filter(
+          (newPost) => !prevPosts.some((prevPost) => prevPost.id === newPost.id)
+        );
+        return [...prevPosts, ...newPosts];
+      });
       setHasMore(response.data.hasMore);
       setNextCursor(response.data.posts[response.data.posts.length - 1]?.id);
     } else {

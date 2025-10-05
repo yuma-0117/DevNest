@@ -2,7 +2,7 @@
 
 import { Session } from "next-auth";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { Button } from "@/components/ui/button";
